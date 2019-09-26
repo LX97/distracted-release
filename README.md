@@ -1,1 +1,1 @@
-# DistractedGaits
+# Distracted Walker Simulation Suite
