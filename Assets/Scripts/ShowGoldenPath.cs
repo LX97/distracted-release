@@ -63,8 +63,8 @@ public class ShowGoldenPath : MonoBehaviour
     {
         
         target = targetPosition;
-        Debug.Log(transform.position);
-        Debug.Log(target);
+//        Debug.Log(transform.position);
+//        Debug.Log(target);
         path = new NavMeshPath();
         NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
         if (path.corners.Length > 0)

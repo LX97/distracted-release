@@ -82,6 +82,7 @@ public class Agent_repulsive : MonoBehaviour
 
                 if (t>=0 && t <4.0f )
                 {
+					Debug.Log ("Collision");
                     Vector3 forceDir = transform.position + rb.velocity * t - test2.position - test.velocity * t; // pointing away from collision position
                     collision_ = true;
                     t_pairs.Add(t, forceDir);
@@ -94,6 +95,7 @@ public class Agent_repulsive : MonoBehaviour
         if(collision_==true)
         {
 
+			Debug.Log ("Adding Collision Force");
             foreach (float t_ in t_pairs.Keys)
             {
                 foreach (Vector3 force_Dir in t_pairs[t_])
@@ -127,9 +129,11 @@ public class Agent_repulsive : MonoBehaviour
 
                     mag *=  Mathf.Pow(  (t_==0 ? 1.0f : 0.8f), count++);
 
+					Debug.Log (mag);
+
 					ShowGoldenPath_Distraction distractionScript = GetComponent<ShowGoldenPath_Distraction>();
 					if (distractionScript == null || distractionScript.checkDistracted() == false){
-						rb.AddForce(mag/2 * force_);
+						rb.AddForce(1000*mag/2 * force_);
 					}
                 }
             }
