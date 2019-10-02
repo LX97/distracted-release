@@ -32,22 +32,11 @@ public class wall_repulsive_force : MonoBehaviour {
 
         agents = GameObject.FindGameObjectsWithTag("Agent");
 
-		MeshFilter meshFilter = GetComponent<MeshFilter>();
-		Mesh cubeMesh = meshFilter.mesh;
-		Vector3[] vertices = cubeMesh.vertices;
+		box1.xmin = transform.position.x + transform.localScale.x/2.0f; 
+		box1.xmax = transform.position.x - transform.localScale.x/2.0f; 
 
-
-
-		for (var i = 0; i < vertices.Length; i++) {
-			Vector3 worldPoint = transform.TransformPoint (vertices [i]);
-			//Debug.Log (worldPoint);
-		}
-
-		box1.xmin = transform.TransformPoint(vertices[4]).x; //transform.position.x + transform.localScale.x/2.0f; 
-		box1.xmax = transform.TransformPoint(vertices[0]).x; //transform.position.x - transform.localScale.x/2.0f; 
-
-		box1.zmax = transform.TransformPoint(vertices[1]).z; //transform.position.z + transform.localScale.z/2.0f; 
-		box1.zmin = transform.TransformPoint(vertices[0]).z; //transform.position.z - transform.localScale.z/2.0f; 
+		box1.zmax = transform.position.z + transform.localScale.z/2.0f; 
+		box1.zmin = transform.position.z - transform.localScale.z/2.0f; 
 
 	
 	}
@@ -80,7 +69,10 @@ public class wall_repulsive_force : MonoBehaviour {
 
                 float distMinRadius = (d_w - 0.5f) < 0.001f ? 0.001f : d_w - 0.5f;     // radius =0.5
                 float calc_1 =  (0.6f-d_w) / (float)Math.Pow((double)distMinRadius, (double)2.0f);   // wall steefness =2.0f
-                test.AddForce(n_w*calc_1);
+
+				Debug.Log(calc_1);
+                
+				test.AddForce(n_w*calc_1);
 				ShowGoldenPath_Distraction distractionScript = agent.GetComponent<ShowGoldenPath_Distraction>();
 				if (distractionScript != null){
 					distractionScript.PayAttention();
@@ -100,11 +92,11 @@ public class wall_repulsive_force : MonoBehaviour {
                 if (Mathf.Abs(rb.position.z - box1.zmax) >
                     Mathf.Abs(rb.position.x - box1.xmax))
                 {
-                    return z_positive; //is this backwards?
+                    return z_positive; 
                 }
                 else
                 {
-                    return x_positive;//
+                    return x_positive;
                 }
 
             }
@@ -113,7 +105,7 @@ public class wall_repulsive_force : MonoBehaviour {
                 if (Mathf.Abs(rb.position.z - box1.zmin) >
                     Mathf.Abs(rb.position.x - box1.xmax))
                 {
-                    return z_negative; //is this backwards?
+                    return z_negative; 
                 }
                 else
                 {
@@ -134,11 +126,11 @@ public class wall_repulsive_force : MonoBehaviour {
                 if (Mathf.Abs(rb.position.z - box1.zmax) >
                     Mathf.Abs(rb.position.x - box1.xmin))
                 {
-                    return z_positive;// is this backwards?
+                    return z_positive;
                 }
                 else
                 {
-                    return z_negative;
+                    return x_negative;
                 }
 
             }
@@ -147,7 +139,7 @@ public class wall_repulsive_force : MonoBehaviour {
                 if (Mathf.Abs(rb.position.z - box1.zmin) >
                     Mathf.Abs(rb.position.x - box1.xmin))
                 {
-                    return z_negative; //is this backwards
+                    return z_negative; 
                 }
                 else
                 {

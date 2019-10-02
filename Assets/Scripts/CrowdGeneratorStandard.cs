@@ -55,7 +55,15 @@ public class CrowdGeneratorStandard: MonoBehaviour {
 			agent.transform.parent = this.transform;
 
             var agentAI = agent.transform.GetComponent<ShowGoldenPath>();
-            agentAI.SetTarget(target.position);
+			if (agentAI != null) {
+				agentAI.SetTarget (target.position);
+			} else { // if the script doesn't exist, it is probably a distracted agent, so check for the distraction version of the script
+				var agentDistractedAI = agent.transform.GetComponent<ShowGoldenPath_Distraction> ();
+				if (agentDistractedAI != null) {
+					agentDistractedAI.SetTarget (target.position);
+				}
+			}
+				
             //var agentAI = agent.transform.GetComponentInChildren<UnityEngine.AI.NavMeshAgent>();
             //agentAI.SetDestination(target.position);
         }
