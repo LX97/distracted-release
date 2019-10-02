@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Agent_repulsive : MonoBehaviour
 {
+    public float fieldOfView = 200f;
 
     GameObject[] neighbor_agents;
     Rigidbody test;
@@ -25,7 +26,7 @@ public class Agent_repulsive : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         neighbor_agents = GameObject.FindGameObjectsWithTag("Agent");
         combinedRadius = 0.1f + 0.5f + 0.5f; // two agents radius plus personal distance 0.1;
-        _cosFov = Mathf.Cos((0.5f * 3.1415892f * 200.0f) / 180.0f);   // agent field of view: 200 degree
+        _cosFov = Mathf.Cos((0.5f * Mathf.PI * fieldOfView) / 180.0f);   // agent field of view: 200 degree
     }
     
     // Update is called once per frame
