@@ -35,37 +35,39 @@ public class CrowdGeneratorStandard: MonoBehaviour {
 	/// <summary>
 	/// Start this instance.
 	/// </summary>
-	void Start () {
-		for (int i = 0; i < numberOfAgents; i++) {
+	void Start ()
+    {
+		for (int i = 0; i < numberOfAgents; i++)
+        {
 			Vector3 newPlacement = Vector3.zero;
 			bool foundNavMeshPosition = false;
+            bool freePlacement = false;
 
-			while (!foundNavMeshPosition) {
+            while (!foundNavMeshPosition || !freePlacement)
+            {
 				newPlacement = new Vector3 (floor.position.x + Random.Range (-(floor.localScale.x / 2f) + edgeBuffer, (floor.localScale.x / 2f) - edgeBuffer), 0f, floor.position.z + Random.Range (-(floor.localScale.z / 2f) + edgeBuffer, (floor.localScale.z / 2f) - edgeBuffer));
 
-				NavMeshHit hit;
-				if (NavMesh.SamplePosition(newPlacement, out hit, 1.0f, NavMesh.AllAreas)){
+                NavMeshHit hit;
+				if (NavMesh.SamplePosition(newPlacement, out hit, 1.0f, NavMesh.AllAreas))
+                {
 					newPlacement = hit.position;
 					foundNavMeshPosition = true;
-				}
+				} else { foundNavMeshPosition = false; }
+
+                if (Physics.OverlapSphere(newPlacement + Vector3.up, agentPrefab.GetComponent<Agent_repulsive>().agentRadius + 0.1f).Length == 0)
+                {
+                    //Debug.DrawLine(newPlacement + Vector3.up, newPlacement + Vector3.up + Vector3.forward * agentPrefab.GetComponent<Agent_repulsive>().agentRadius, Color.green, 5f);
+                    freePlacement = true;
+                }
+                else { freePlacement = false; }//Debug.Log("PLacement was taken"); }
 			}
 
 			Transform agent = Instantiate (agentPrefab, newPlacement, Quaternion.identity) as Transform;
 			
 			agent.transform.parent = this.transform;
 
-            var agentAI = agent.transform.GetComponent<ShowGoldenPath>();
-			if (agentAI != null) {
-				agentAI.SetTarget (target.position);
-			} else { // if the script doesn't exist, it is probably a distracted agent, so check for the distraction version of the script
-				var agentDistractedAI = agent.transform.GetComponent<ShowGoldenPath_Distraction> ();
-				if (agentDistractedAI != null) {
-					agentDistractedAI.SetTarget (target.position);
-				}
-			}
-				
-            //var agentAI = agent.transform.GetComponentInChildren<UnityEngine.AI.NavMeshAgent>();
-            //agentAI.SetDestination(target.position);
+            var agentAI = agent.transform.GetComponent<Agent>();
+			agentAI.SetTarget (target.position);
         }
-	}
+    }
 }

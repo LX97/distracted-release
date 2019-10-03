@@ -6,10 +6,25 @@ using UnityEngine;
 using System;
 
 public class wall_repulsive_force : MonoBehaviour {
+    /// <summary>
+    /// 
+    /// </summary>
+    public float wallDistance = 0.1f;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public float wallSteepness = 2.0f;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private float idealWallDistance;
+
+
 
 	GameObject[] agents;
-	Rigidbody test;
-    Transform test2;
+
 	Vector3 x_positive= new Vector3(1.0f, 0.0f, 0.0f);
 	Vector3 x_negative= new Vector3(-1.0f, 0.0f, 0.0f);
 	Vector3 z_positive= new Vector3(0.0f, 0.0f, 1.0f);
@@ -44,39 +59,50 @@ public class wall_repulsive_force : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate() {
 
-
 		foreach (GameObject agent in agents) {
+            Agent_repulsive agentOther = agent.GetComponent<Agent_repulsive>();
+            Rigidbody agentRigidBody = agent.GetComponent<Rigidbody>();
+            Transform agentTransform = agent.GetComponent<Transform>();
 
-			test = agent.GetComponent<Rigidbody>();
-            test2 = agent.GetComponent<Transform>();
+            float idealWallDistance = agentOther.agentRadius + wallDistance;
+            float safe = idealWallDistance * idealWallDistance;
 
-            wall_normal = calc_wall_normal(test2, box1);
+
+            wall_normal = calc_wall_normal(agentTransform, box1);
             Pair<Vector3, Vector3> line_p = calcWallPointsFromNormal(box1, wall_normal);
-            Vector3 n_w = test2.position - closestPointLineSegment(line_p.First, line_p.Second, test2.position);
+            Vector3 n_w = agentTransform.position - closestPointLineSegment(line_p.First, line_p.Second, agentTransform.position);
 
-			Debug.DrawLine (line_p.First, line_p.Second, Color.blue);
+            
 
-			Debug.DrawLine (new Vector3(5, 0, box1.zmin), new Vector3(5, 0, box1.zmax), Color.red);
-            n_w.y = 0;
+			//Debug.DrawLine (line_p.First, line_p.Second, Color.blue, 0.02f);
+
+			//Debug.DrawLine (new Vector3(5, 0, box1.zmin), new Vector3(5, 0, box1.zmax), Color.red, 0.02f);
 
             float d_w = n_w.sqrMagnitude;
 
-            if (d_w < 0.6f * 0.6f)    //0.6 : walldistance
+            if (d_w < safe)
             {
-                d_w = (float)Math.Sqrt((double)d_w);
+                d_w = Mathf.Sqrt(d_w);
                 if (d_w > 0)
                     n_w /= d_w;
 
-                float distMinRadius = (d_w - 0.5f) < 0.001f ? 0.001f : d_w - 0.5f;     // radius =0.5
-                float calc_1 =  (0.6f-d_w) / (float)Math.Pow((double)distMinRadius, (double)2.0f);   // wall steefness =2.0f
+                float distanceMinimumRadius = (d_w - agentOther.agentRadius) < 0.001f ? 0.001f : d_w - agentOther.agentRadius;
+                //Debug.Log("idealWallDistance: " + idealWallDistance);
+                //Debug.Log("d_w: " + d_w);
+                //Debug.Log("distanceMinimumRadius: " + distanceMinimumRadius);
+                //Debug.Log("n_w.magnitude: " + n_w.magnitude);
+                //Debug.Log("Final Magnitude: " + (idealWallDistance - d_w) / Mathf.Pow(distanceMinimumRadius, wallSteepness));
+                Vector3 drivingForce =  (idealWallDistance - d_w) / Mathf.Pow(distanceMinimumRadius, wallSteepness) * n_w;
 
-				Debug.Log(calc_1);
-                
-				test.AddForce(n_w*calc_1);
-				ShowGoldenPath_Distraction distractionScript = agent.GetComponent<ShowGoldenPath_Distraction>();
-				if (distractionScript != null){
-					distractionScript.PayAttention();
-				}
+
+                //Debug.DrawLine(agentTransform.position, agentTransform.position + drivingForce, Color.blue, 0.02f);
+                agentRigidBody.AddForce(drivingForce, ForceMode.Force);
+
+                // MELISSA check HERE
+                ///ShowGoldenPath_Distraction distractionScript = agent.GetComponent<ShowGoldenPath_Distraction>();
+				//if (distractionScript != null){
+				//	distractionScript.PayAttention();
+				//}
             }
 
         }

@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ShowGoldenPath : MonoBehaviour
+public class ShowGoldenPath : Agent
 {	
     /// <summary>
     /// Agents preferred speed
@@ -13,6 +13,11 @@ public class ShowGoldenPath : MonoBehaviour
     /// Distance from waypoint when reached
     /// </summary>
     public float sqrWaypointDistance;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public float ksi = 0.5f;
 
     /// <summary>
     /// The current A* path
@@ -59,7 +64,7 @@ public class ShowGoldenPath : MonoBehaviour
     /// Sets the target for the agents and computes the path
     /// </summary>
     /// <param name="target"></param>
-    public void SetTarget(Vector3 targetPosition)
+    public override void SetTarget(Vector3 targetPosition)
     {
         
         target = targetPosition;
@@ -79,6 +84,15 @@ public class ShowGoldenPath : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public override Vector3 GetCurrentGoal()
+    {
+        return currentWaypoint;
+    }
 
 
     /// <summary>
@@ -103,17 +117,21 @@ public class ShowGoldenPath : MonoBehaviour
             }
 
             // Update the way to the goal every second.
-            for (int i = 0; i < path.corners.Length - 1; i++)
-                Debug.DrawLine(path.corners[i], path.corners[i + 1], Color.red, 1f);
+            //for (int i = 0; i < path.corners.Length - 1; i++)
+            //    Debug.DrawLine(path.corners[i], path.corners[i + 1], Color.red, 1f);
         }
         else
         {
             if (path.status == NavMeshPathStatus.PathComplete)
             {
                 // Goal driven force.
-                rb.AddForce(((currentWaypoint - transform.position).normalized * prefered_speed - rb.velocity) / 0.5f);
+                Vector3 preferredVelocity = currentWaypoint - transform.position;
+                float goalDistance = preferredVelocity.sqrMagnitude;
+                preferredVelocity *= prefered_speed / Mathf.Sqrt(goalDistance);
+                Vector3 goalForce = (preferredVelocity - rb.velocity) / ksi;
+                rb.AddForce(goalForce, ForceMode.Force);
 
-                Debug.DrawLine(transform.position, currentWaypoint, Color.green, 0.02f);
+                //Debug.DrawLine(transform.position, currentWaypoint, Color.green, 0.02f);
 
                 if ((currentWaypoint - transform.position).sqrMagnitude < sqrWaypointDistance)
                 {

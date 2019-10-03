@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ShowGoldenPath_Distraction : MonoBehaviour
+public class ShowGoldenPath_Distraction : Agent
 {	
     /// <summary>
     /// Agents preferred speed
@@ -134,7 +134,7 @@ public class ShowGoldenPath_Distraction : MonoBehaviour
     /// Sets the target for the agents and computes the path
     /// </summary>
     /// <param name="target"></param>
-    public void SetTarget(Vector3 targetPosition)
+    public override void SetTarget(Vector3 targetPosition)
     {
         
         target = targetPosition;
@@ -155,10 +155,21 @@ public class ShowGoldenPath_Distraction : MonoBehaviour
 		direction = (currentWaypoint - transform.position);
     }
 
-	/// <summary>
-	/// Getter method to check if the agent is distracted
-	/// </summary>
-	public bool checkDistracted(){
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public override Vector3 GetCurrentGoal()
+    {
+        return currentWaypoint;
+    }
+
+
+    /// <summary>
+    /// Getter method to check if the agent is distracted
+    /// </summary>
+    public bool checkDistracted(){
 		return is_distracted;
 	}
 
@@ -208,8 +219,8 @@ public class ShowGoldenPath_Distraction : MonoBehaviour
             }
 
             // Update the way to the goal every second.
-            for (int i = 0; i < path.corners.Length - 1; i++)
-                Debug.DrawLine(path.corners[i], path.corners[i + 1], Color.red, 1f);
+            //for (int i = 0; i < path.corners.Length - 1; i++)
+                //Debug.DrawLine(path.corners[i], path.corners[i + 1], Color.red, 1f);
 
 			//Distraction Logic
 			float randNum = Random.value;
@@ -229,7 +240,7 @@ public class ShowGoldenPath_Distraction : MonoBehaviour
                 // Goal driven force.
 				rb.AddForce((direction.normalized * current_speed - rb.velocity) / 0.5f);
 
-                Debug.DrawLine(transform.position, currentWaypoint, Color.green, 0.02f);
+                //Debug.DrawLine(transform.position, currentWaypoint, Color.green, 0.02f);
 
 				if (current_attentiveness == 1.0f) {
 					gameObject.GetComponentInChildren<Renderer> ().material.color = Color.green;

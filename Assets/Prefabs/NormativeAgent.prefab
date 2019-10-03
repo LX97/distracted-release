@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 136981210421686530}
   m_Layer: 0
   m_Name: NormativeAgent
-  m_TagString: Untagged
+  m_TagString: Agent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -142,7 +142,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefered_speed: 3
-  sqrWaypointDistance: 0.25
+  sqrWaypointDistance: 1
+  ksi: 0.5
 --- !u!114 &114401724221335392
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -154,14 +155,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab541ca4dd2014e4dbcf4a0ebab76f32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noise: 1
+  fieldOfView: 200
+  agentRadius: 0.5
+  minAgentDistance: 0.1
+  dmid: 4
+  ksi: 0.5
+  neighborDist: 10
+  maxNeighbors: 3
+  maxAccel: 20
+  maxSpeed: 2
+  preferredSpeed: 3
+  radius: 0.5
+  goalRadius: 1
+  timeHorizon: 4
+  agentDistance: 0.1
+  wallDistance: 0.1
+  wallSteepness: 2
+  agentStrength: 2
+  wFactor: 0.8
+  noise: 0
 --- !u!136 &136981210421686530
 CapsuleCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1528488173675602}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 2d8c26b05ae04f544af39756aef7eece, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5
