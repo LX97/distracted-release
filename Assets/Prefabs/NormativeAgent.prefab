@@ -168,7 +168,7 @@ MonoBehaviour:
   radius: 0.5
   goalRadius: 1
   timeHorizon: 4
-  agentDistance: 0.1
+  agentDistance: 0.5
   wallDistance: 0.1
   wallSteepness: 2
   agentStrength: 2

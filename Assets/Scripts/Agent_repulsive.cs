@@ -274,6 +274,9 @@ public class Agent_repulsive : MonoBehaviour
         }
 
         //Debug.DrawLine(transform.position, transform.position + drivingForce, Color.red, 0.02f);
+
+		//Clamp the force to within a reasonable range
+		drivingForce = Vector3.ClampMagnitude (drivingForce, 90.0f);
         rb.AddForce(drivingForce, ForceMode.Force);
     }
 
