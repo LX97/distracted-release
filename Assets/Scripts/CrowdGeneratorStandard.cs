@@ -33,9 +33,9 @@ public class CrowdGeneratorStandard: MonoBehaviour {
 
 	
 	/// <summary>
-	/// Start this instance.
+	/// Initialize this instance. Use Awake() instead of Start() to ensure agents are generated before other scripts need them.
 	/// </summary>
-	void Start ()
+	void Awake ()
     {
 		for (int i = 0; i < numberOfAgents; i++)
         {
@@ -54,7 +54,7 @@ public class CrowdGeneratorStandard: MonoBehaviour {
 					foundNavMeshPosition = true;
 				} else { foundNavMeshPosition = false; }
 
-                if (Physics.OverlapSphere(newPlacement + Vector3.up, agentPrefab.GetComponent<Agent_repulsive>().agentRadius + 0.1f).Length == 0)
+                if (Physics.OverlapSphere(newPlacement + Vector3.up, agentPrefab.GetComponent<AgentRepulsiveForce>().agentRadius + 0.1f).Length == 0)
                 {
                     //Debug.DrawLine(newPlacement + Vector3.up, newPlacement + Vector3.up + Vector3.forward * agentPrefab.GetComponent<Agent_repulsive>().agentRadius, Color.green, 5f);
                     freePlacement = true;

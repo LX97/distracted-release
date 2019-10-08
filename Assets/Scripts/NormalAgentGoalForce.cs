@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ShowGoldenPath : Agent
+public class NormalAgentGoalForce : Agent
 {	
     /// <summary>
     /// Agents preferred speed

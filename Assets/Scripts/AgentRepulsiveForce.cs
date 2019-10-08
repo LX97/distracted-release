@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Agent))]
-public class Agent_repulsive : MonoBehaviour
+public class AgentRepulsiveForce : MonoBehaviour
 {
     /// <summary>
     /// The agents field of view
@@ -181,40 +181,38 @@ public class Agent_repulsive : MonoBehaviour
         for (int i = 0; i < neighbor_agents.Length; ++i)
         {
             GameObject agent = neighbor_agents[i];
-            Agent_repulsive otherAgent = agent.GetComponent<Agent_repulsive>();
-            Rigidbody otherAgentRB = agent.GetComponent<Rigidbody>();
-            Transform otherAgentTransform = agent.GetComponent<Transform>();
+			if (agent != null) {
+				AgentRepulsiveForce otherAgent = agent.GetComponent<AgentRepulsiveForce> ();
+				Rigidbody otherAgentRB = agent.GetComponent<Rigidbody> ();
+				Transform otherAgentTransform = agent.GetComponent<Transform> ();
             
 
-            // ignore own tag and far distance agent
-            if (this.GetInstanceID() == agent.GetInstanceID()) continue;
+				// ignore own tag and far distance agent
+				if (this.GetInstanceID () == agent.GetInstanceID ())
+					continue;
 
-            float combinedRadius = agentPersonalSpace + otherAgent.agentRadius;
+				float combinedRadius = agentPersonalSpace + otherAgent.agentRadius;
 
-            Vector3 w = otherAgentTransform.position - transform.position;
-            if (w.sqrMagnitude < combinedRadius * combinedRadius)
-            {
-                collision_ = true;
-                t_pairs.Add(new KeyValuePair<float, GameObject>(0.0f, agent));
-            }
-            else
-            {
-                Vector3 relDir = w.normalized;
-                if (Vector3.Dot(relDir, rb.velocity.normalized) < _cosFov) continue;
+				Vector3 w = otherAgentTransform.position - transform.position;
+				if (w.sqrMagnitude < combinedRadius * combinedRadius) {
+					collision_ = true;
+					t_pairs.Add (new KeyValuePair<float, GameObject> (0.0f, agent));
+				} else {
+					Vector3 relDir = w.normalized;
+					if (Vector3.Dot (relDir, rb.velocity.normalized) < _cosFov)
+						continue;
 
-                float tc = rayIntersectsDisc(transform.position, otherAgentTransform.position, desiredVelocity - otherAgentRB.velocity, combinedRadius);
-                if (tc < timeHorizon)
-                {
-                    if (t_pairs.Count < maxNeighbors)
-                    {
-                        t_pairs.Add(new KeyValuePair<float, GameObject>(tc, agent));
-                    } else if (tc < t_pairs.ToArray()[0].Key)
-                    {
-                        t_pairs.RemoveAt(t_pairs.Count - 1);
-                        t_pairs.Add(new KeyValuePair<float, GameObject>(tc, agent));
-                    } //What to do if max neighbours is reached THIS NEED TO BE IMPLEMENTED
-                }
-            }
+					float tc = rayIntersectsDisc (transform.position, otherAgentTransform.position, desiredVelocity - otherAgentRB.velocity, combinedRadius);
+					if (tc < timeHorizon) {
+						if (t_pairs.Count < maxNeighbors) {
+							t_pairs.Add (new KeyValuePair<float, GameObject> (tc, agent));
+						} else if (tc < t_pairs.ToArray () [0].Key) {
+							t_pairs.RemoveAt (t_pairs.Count - 1);
+							t_pairs.Add (new KeyValuePair<float, GameObject> (tc, agent));
+						} //What to do if max neighbours is reached THIS NEED TO BE IMPLEMENTED
+					}
+				}
+			}
         }
 
 		//Debug.Log ("Adding Collision Force");
@@ -228,7 +226,7 @@ public class Agent_repulsive : MonoBehaviour
             if (forceDistance > 0f)
                 forceDirection /= forceDistance;
 
-            float collisionDistance = Mathf.Max(forceDistance - agentRadius - agent.GetComponent<Agent_repulsive>().agentRadius, .0f); // distance between their cylindrical bodies at the time of collision
+            float collisionDistance = Mathf.Max(forceDistance - agentRadius - agent.GetComponent<AgentRepulsiveForce>().agentRadius, .0f); // distance between their cylindrical bodies at the time of collision
             float D = Mathf.Max(desiredSpeed * t_ + collisionDistance, 0.001f); // D = input to evasive force magnitude piecewise function
                 
             float forceMagnitude;

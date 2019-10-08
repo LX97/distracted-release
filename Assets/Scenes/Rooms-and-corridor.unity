@@ -265,10 +265,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 142084009}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallDistance: 0.1
+  wallDistance: 5
   wallSteepness: 2
 --- !u!23 &142084011
 MeshRenderer:
@@ -392,7 +392,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 347069940}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wallDistance: 0.1
@@ -519,7 +519,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 472165097}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wallDistance: 0.1
@@ -940,7 +940,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 902688761}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wallDistance: 0.1
@@ -1041,8 +1041,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallDistance: 0.1
-  wallSteepness: 2
 --- !u!23 &955271837
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1430,7 +1428,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1294074329}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wallDistance: 0.1
@@ -1515,7 +1513,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1321687743}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wallDistance: 0.1
@@ -1797,7 +1795,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1504291899}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wallDistance: 0.1
@@ -1898,8 +1896,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallDistance: 0.1
-  wallSteepness: 2
 --- !u!23 &1504909601
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1967,7 +1963,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1509723807}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wallDistance: 0.1
@@ -2405,7 +2401,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1748764654}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wallDistance: 0.1
@@ -2913,7 +2909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 921ce44dcccc79040997c91a234abd26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentPrefab: {fileID: 4107315207182974, guid: 9134ba7ebc5732d45b43e52cdc7ade6d,
+  agentPrefab: {fileID: 4693206810576640, guid: 9134ba7ebc5732d45b43e52cdc7ade6d,
     type: 2}
   floor: {fileID: 621626964}
   edgeBuffer: 0.5
@@ -2930,7 +2926,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 921ce44dcccc79040997c91a234abd26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentPrefab: {fileID: 4107315207182974, guid: 9134ba7ebc5732d45b43e52cdc7ade6d,
+  agentPrefab: {fileID: 4693206810576640, guid: 9134ba7ebc5732d45b43e52cdc7ade6d,
     type: 2}
   floor: {fileID: 555627091}
   edgeBuffer: 0.5
@@ -2947,7 +2943,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 921ce44dcccc79040997c91a234abd26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentPrefab: {fileID: 4107315207182974, guid: 9134ba7ebc5732d45b43e52cdc7ade6d,
+  agentPrefab: {fileID: 4693206810576640, guid: 9134ba7ebc5732d45b43e52cdc7ade6d,
     type: 2}
   floor: {fileID: 1189442768}
   edgeBuffer: 0.5
@@ -2977,7 +2973,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 921ce44dcccc79040997c91a234abd26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentPrefab: {fileID: 4278132700736046, guid: 98a20e4fe08ed544a8e87e1b25828d93,
+  agentPrefab: {fileID: 4187238448068224, guid: 98a20e4fe08ed544a8e87e1b25828d93,
     type: 2}
   floor: {fileID: 1189442768}
   edgeBuffer: 0.5
@@ -3009,7 +3005,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2106842172}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d71eca3c6c15ad246a9df1dd31e34d43, type: 3}
+  m_Script: {fileID: 11500000, guid: c8744b08c6f3f1a4f8769cc0d2b4c4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wallDistance: 0.1

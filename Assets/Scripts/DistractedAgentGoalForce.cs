@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ShowGoldenPath_Distraction : Agent
+public class DistractedAgentGoalForce : Agent
 {	
     /// <summary>
     /// Agents preferred speed
@@ -12,12 +12,27 @@ public class ShowGoldenPath_Distraction : Agent
 	/// <summary>
 	/// Agent's speed while distracted
 	/// </summary>
-	public float distraction_speed = 1.0f;
+	private float distractionSpeed;
+
+	/// <summary>
+	/// Agent's min speed while distracted
+	/// </summary>
+	private float minDistractionSpeed;
+
+	/// <summary>
+	/// Agent's max speed while distracted
+	/// </summary>
+	private float maxDistractionSpeed;
 
 	/// <summary>
 	/// Agent's current speed
 	/// </summary>
-	private float current_speed;
+	private float currentSpeed;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public float ksi = 0.5f;
 
     /// <summary>
     /// Distance from waypoint when reached
@@ -62,59 +77,66 @@ public class ShowGoldenPath_Distraction : Agent
 	/// <summary>
 	/// Whether the agent is currently distracted
 	/// </summary>
-	private bool is_distracted = false;
+	private bool isDistracted = false;
 
 	/// <summary>
 	/// The current attentiveness of the agent
 	/// </summary>
-	private float current_attentiveness = 1.0f;
+	private float currentAttentiveness = 1.0f;
 
 	/// <summary>
 	/// The time the agent has been distracted
 	/// </summary>
-	private float elapsed_time_distracted = 0.0f;
+	private float elapsedTimeDistracted = 0.0f;
 
 	/// <summary>
 	/// The time the agent has been alert
 	/// </summary>
-	private float elapsed_time_attentive = 0.0f;
+	private float elapsedTimeAttentive = 0.0f;
 
 	/// <summary>
 	/// The attentiveness level of the agent while distracted.
 	/// When the agent is distracted, how distracted are they?
 	/// </summary>
-	public float attentiveness_level = 0.1f;
+	public float attentivenessLevel = 0.1f;
 
 	/// <summary>
 	/// The lateral deviation factor 
 	/// Affects how far left or right the agent drifts while distracted.
 	/// </summary>
-	public float deviation_factor = 0.1f;
+	public float deviationFactor = 0.1f;
 
 	/// <summary>
 	/// The minimum amount of time the agent remains distracted
 	/// </summary>
-	public float min_distraction_time = 2.0f;
+	public float minDistractionTime = 2.0f;
 
 	/// <summary>
 	/// The maximum amount of time the agent remains distracted
 	/// </summary>
-	public float max_distraction_time = 5.0f;
+	public float maxDistractionTime = 5.0f;
 
 	/// <summary>
 	/// The minimum amount of time the agent is attentive before they can become distracted
 	/// </summary>
-	public float min_attentive_time = 5.0f;
+	public float minAttentiveTime = 5.0f;
 
 	/// <summary>
 	/// The likelihood an agent becomes distracted each second, expressed as a percentage
 	/// </summary>
-	public float percent_chance_become_distracted = 50; 
+	public float percentChanceBecomeDistracted = 50; 
 
 	/// <summary>
 	/// The likelihood an agent becomes distracted each second, expressed as a decimal between 0 and 1
 	/// </summary>
 	private float distractedChance;
+
+	/// <summary>
+	/// If this is set, distractedChance is overridden and the agent always becomes distracted
+	/// The agent still pays attention for 1 second when maxDistractionTime is reached, in order to recompute the path
+	/// If this is set, minAttentiveTime will be set to 0 when the simulation starts
+	/// </summary>
+	public bool alwaysDistracted = false;
 
     /// <summary>
     /// Starts this instance
@@ -122,12 +144,21 @@ public class ShowGoldenPath_Distraction : Agent
     void Start()
 	{
 		rb = GetComponent<Rigidbody> ();
-		current_speed = prefered_speed;
-		distractedChance = percent_chance_become_distracted / 100;
+		currentSpeed = prefered_speed;
+		distractedChance = percentChanceBecomeDistracted / 100;
 		float randDevDir = Random.value;
 		if (randDevDir <= 0.5f) { // Determines whether the agents deviates left or right while distracted (e.g. whether the agent is right-brained or left-brained)
-			deviation_factor = -deviation_factor;
+			deviationFactor = -deviationFactor;
 		}
+
+		// According to studies, distracted pedestrians move between 5-35% slower
+		minDistractionSpeed = 0.65f * prefered_speed;
+		maxDistractionSpeed = 0.95f * prefered_speed;
+
+		if (alwaysDistracted == true) {
+			minAttentiveTime = 0.0f;
+		}
+
     }
 
     /// <summary>
@@ -170,31 +201,32 @@ public class ShowGoldenPath_Distraction : Agent
     /// Getter method to check if the agent is distracted
     /// </summary>
     public bool checkDistracted(){
-		return is_distracted;
+		return isDistracted;
 	}
 
 	/// <summary>
 	/// Make the agent pay attention
 	/// </summary>
 	public void PayAttention(){
-		elapsed_time_distracted = 0.0f;
-		is_distracted = false;
+		elapsedTimeDistracted = 0.0f;
+		isDistracted = false;
 		SetTarget (target);
-		current_attentiveness = 1.0f;
-		current_speed = prefered_speed;
+		currentAttentiveness = 1.0f;
+		currentSpeed = prefered_speed;
 	}
 
 	/// <summary>
 	/// Make the agent become distracted
 	/// </summary>
 	public void BecomeDistracted(){
-		is_distracted = true;
+		isDistracted = true;
 		direction = (currentWaypoint - transform.position);
-		direction += new Vector3 (-direction.z * deviation_factor, 0, direction.x * deviation_factor); //lateral deviation from a straight line while distracted
-		current_attentiveness = attentiveness_level;
-		elapsed_time_attentive = 0.0f;
+		direction += new Vector3 (-direction.z * deviationFactor, 0, direction.x * deviationFactor); //lateral deviation from a straight line while distracted
+		currentAttentiveness = attentivenessLevel;
+		elapsedTimeAttentive = 0.0f;
 		float randNum = Random.value;
-		current_speed = distraction_speed;
+		distractionSpeed = minDistractionSpeed + ((maxDistractionSpeed - minDistractionSpeed) * attentivenessLevel); //scale speed based on level of attentiveness
+		currentSpeed = distractionSpeed;
 	}
 
     /// <summary>
@@ -224,9 +256,9 @@ public class ShowGoldenPath_Distraction : Agent
 
 			//Distraction Logic
 			float randNum = Random.value;
-			if (is_distracted == false && randNum <= distractedChance && elapsed_time_attentive > min_attentive_time) {
+			if (isDistracted == false && (alwaysDistracted == true || randNum <= distractedChance && elapsedTimeAttentive > minAttentiveTime)) {
 				BecomeDistracted ();
-			} else if (elapsed_time_distracted >= max_distraction_time || (elapsed_time_distracted >= min_distraction_time && randNum <= 1.0f - distractedChance)) {
+			} else if (elapsedTimeDistracted >= maxDistractionTime || (alwaysDistracted == false && elapsedTimeDistracted >= minDistractionTime && randNum <= 1.0f - distractedChance)) {
 				PayAttention (); 
 			}
         }
@@ -234,15 +266,18 @@ public class ShowGoldenPath_Distraction : Agent
         {
             if (path.status == NavMeshPathStatus.PathComplete)
             {
-				if (is_distracted == false) {
+				if (isDistracted == false) {
 					direction = (currentWaypoint - transform.position);
 				}
                 // Goal driven force.
-				rb.AddForce((direction.normalized * current_speed - rb.velocity) / 0.5f);
+				float goalDistance = direction.sqrMagnitude;
+				direction *= currentSpeed / Mathf.Sqrt(goalDistance);
+				Vector3 goalForce = (direction - rb.velocity) / ksi;
+				rb.AddForce(goalForce, ForceMode.Force);
 
                 //Debug.DrawLine(transform.position, currentWaypoint, Color.green, 0.02f);
 
-				if (current_attentiveness == 1.0f) {
+				if (currentAttentiveness == 1.0f) {
 					gameObject.GetComponentInChildren<Renderer> ().material.color = Color.green;
 				} else {
 					gameObject.GetComponentInChildren<Renderer> ().material.color = Color.red;
@@ -265,10 +300,10 @@ public class ShowGoldenPath_Distraction : Agent
         }
 
 		//increment alert/distracted time each frame
-		if (is_distracted == true) {
-			elapsed_time_distracted += Time.deltaTime;
+		if (isDistracted == true) {
+			elapsedTimeDistracted += Time.deltaTime;
 		} else {
-			elapsed_time_attentive += Time.deltaTime;
+			elapsedTimeAttentive += Time.deltaTime;
 		}
 
 
