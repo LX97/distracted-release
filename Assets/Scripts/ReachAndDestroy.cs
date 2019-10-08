@@ -16,7 +16,17 @@ public class ReachAndDestroy : MonoBehaviour {
 	/// <summary>
 	/// The number of agents that the simulation started with
 	/// </summary>
-	private int  initialNumberOfAgents;
+	public int  initialNumberOfAgents;
+
+	/// <summary>
+	/// The time for all agents to reach the goal
+	/// </summary>
+	public float simulationCompletionTime;
+
+	/// <summary>
+	/// The flowRate calculated at the end of the simulation
+	/// </summary>
+	public float flowRate;
 
 	/// <summary>
 	/// The agent.
@@ -44,8 +54,8 @@ public class ReachAndDestroy : MonoBehaviour {
 		}
 
 		if (countAgentsDestroyed == initialNumberOfAgents) {
-			Debug.Log (Time.fixedUnscaledTime);
-			float flowRate = initialNumberOfAgents / Time.fixedUnscaledTime;
+			simulationCompletionTime = Time.fixedUnscaledTime;
+			flowRate = initialNumberOfAgents / simulationCompletionTime;
 		}
 	}
 

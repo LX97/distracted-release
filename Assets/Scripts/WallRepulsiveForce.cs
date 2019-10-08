@@ -93,10 +93,10 @@ public class WallRepulsiveForce : MonoBehaviour {
 						agentRigidBody.AddForce (drivingForce, ForceMode.Force);
 
 						// MELISSA check HERE
-						///ShowGoldenPath_Distraction distractionScript = agent.GetComponent<ShowGoldenPath_Distraction>();
-						//if (distractionScript != null){
-						//	distractionScript.PayAttention();
-						//}
+						DistractedAgentGoalForce distractionScript = agent.GetComponent<DistractedAgentGoalForce>();
+						if (distractionScript != null){
+							distractionScript.PayAttention();
+						}
 					}
 
 				}
