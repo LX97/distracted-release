@@ -169,9 +169,12 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
         float goalDistance = preferredVelocity.sqrMagnitude;
         preferredVelocity *= preferredSpeed / Mathf.Sqrt(goalDistance);
 
+        // Goal Driven Force (Always added)
+        Vector3 goalForce = (preferredVelocity - rb.velocity) / ksi;
+        rb.AddForce(goalForce, ForceMode.Force);
+
 
         Vector3 drivingForce = Vector3.zero;
-            //(preferredVelocity - rb.velocity) / ksi; //This is the goal force but we arent using goal force here
 
        Vector3 idealDrivingForce = (preferredVelocity - rb.velocity) / ksi;
 

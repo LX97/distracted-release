@@ -5,19 +5,9 @@ using UnityEngine.AI;
 public class NormativeAgent : Agent
 {	
     /// <summary>
-    /// Agents preferred speed
-    /// </summary>
-	public float prefered_speed = 1.3f;
-
-    /// <summary>
     /// Distance from waypoint when reached
     /// </summary>
     public float sqrWaypointDistance;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public float ksi = 0.5f;
 
     /// <summary>
     /// The current A* path
@@ -124,13 +114,6 @@ public class NormativeAgent : Agent
         {
             if (path.status == NavMeshPathStatus.PathComplete)
             {
-                // Goal driven force.
-                Vector3 preferredVelocity = currentWaypoint - transform.position;
-                float goalDistance = preferredVelocity.sqrMagnitude;
-                preferredVelocity *= prefered_speed / Mathf.Sqrt(goalDistance);
-                Vector3 goalForce = (preferredVelocity - rb.velocity) / ksi;
-                rb.AddForce(goalForce, ForceMode.Force);
-
                 //Debug.DrawLine(transform.position, currentWaypoint, Color.green, 0.02f);
 
                 if ((currentWaypoint - transform.position).sqrMagnitude < sqrWaypointDistance)
