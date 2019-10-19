@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Agent))]
-public class AgentRepulsiveForce : MonoBehaviour
+public class AgentPredictiveAvoidanceModel : MonoBehaviour
 {
     /// <summary>
     /// The agents field of view
@@ -182,7 +182,7 @@ public class AgentRepulsiveForce : MonoBehaviour
         {
             GameObject agent = neighbor_agents[i];
 			if (agent != null) {
-				AgentRepulsiveForce otherAgent = agent.GetComponent<AgentRepulsiveForce> ();
+                AgentPredictiveAvoidanceModel otherAgent = agent.GetComponent<AgentPredictiveAvoidanceModel> ();
 				Rigidbody otherAgentRB = agent.GetComponent<Rigidbody> ();
 				Transform otherAgentTransform = agent.GetComponent<Transform> ();
             
@@ -226,7 +226,7 @@ public class AgentRepulsiveForce : MonoBehaviour
             if (forceDistance > 0f)
                 forceDirection /= forceDistance;
 
-            float collisionDistance = Mathf.Max(forceDistance - agentRadius - agent.GetComponent<AgentRepulsiveForce>().agentRadius, .0f); // distance between their cylindrical bodies at the time of collision
+            float collisionDistance = Mathf.Max(forceDistance - agentRadius - agent.GetComponent<AgentPredictiveAvoidanceModel>().agentRadius, .0f); // distance between their cylindrical bodies at the time of collision
             float D = Mathf.Max(desiredSpeed * t_ + collisionDistance, 0.001f); // D = input to evasive force magnitude piecewise function
                 
             float forceMagnitude;

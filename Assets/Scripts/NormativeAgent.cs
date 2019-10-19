@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class NormalAgentGoalForce : Agent
+public class NormativeAgent : Agent
 {	
     /// <summary>
     /// Agents preferred speed

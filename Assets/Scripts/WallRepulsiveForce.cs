@@ -57,7 +57,7 @@ public class WallRepulsiveForce : MonoBehaviour {
 
 			foreach (GameObject agent in agents) {
 				if (agent != null) {
-					AgentRepulsiveForce agentOther = agent.GetComponent<AgentRepulsiveForce> ();
+					AgentPredictiveAvoidanceModel agentOther = agent.GetComponent<AgentPredictiveAvoidanceModel> ();
 					Rigidbody agentRigidBody = agent.GetComponent<Rigidbody> ();
 					Transform agentTransform = agent.GetComponent<Transform> ();
 
@@ -93,7 +93,7 @@ public class WallRepulsiveForce : MonoBehaviour {
 						agentRigidBody.AddForce (drivingForce, ForceMode.Force);
 
 						// MELISSA check HERE
-						DistractedAgentGoalForce distractionScript = agent.GetComponent<DistractedAgentGoalForce>();
+						DistractedAgent distractionScript = agent.GetComponent<DistractedAgent>();
 						if (distractionScript != null){
 							distractionScript.PayAttention();
 						}

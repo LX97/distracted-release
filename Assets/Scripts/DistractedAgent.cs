@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class DistractedAgentGoalForce : Agent
+public class DistractedAgent : Agent
 {	
     /// <summary>
     /// Agents preferred speed

@@ -38,8 +38,8 @@ GameObject:
   - component: {fileID: 4187238448068224}
   - component: {fileID: 136976602712060804}
   - component: {fileID: 54401744650893126}
-  - component: {fileID: 114297175675825076}
-  - component: {fileID: 114767905452676788}
+  - component: {fileID: 114702416435414282}
+  - component: {fileID: 114335572521617486}
   m_Layer: 0
   m_Name: DistractedAgent
   m_TagString: Agent
@@ -130,7 +130,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
---- !u!114 &114297175675825076
+--- !u!114 &114335572521617486
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -138,28 +138,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1408520069048592}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 478a0b2a2714ff840b2262ac0bf8f8e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prefered_speed: 3
-  ksi: 0.5
-  sqrWaypointDistance: 0.5
-  attentivenessLevel: 0.1
-  deviationFactor: 0.1
-  minDistractionTime: 2
-  maxDistractionTime: 3
-  minAttentiveTime: 5
-  percentChanceBecomeDistracted: 50
-  alwaysDistracted: 1
---- !u!114 &114767905452676788
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1408520069048592}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b1bb7a57b7b227419f4eff2563664cc, type: 3}
+  m_Script: {fileID: 11500000, guid: 738b0ea648d07ef4e96b569bc225429b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   fieldOfView: 200
@@ -171,7 +150,7 @@ MonoBehaviour:
   maxNeighbors: 3
   maxAccel: 20
   maxSpeed: 2
-  preferredSpeed: 3
+  preferredSpeed: 1.3
   radius: 0.5
   goalRadius: 1
   timeHorizon: 4
@@ -180,7 +159,28 @@ MonoBehaviour:
   wallSteepness: 2
   agentStrength: 1
   wFactor: 0.8
-  noise: 0
+  noise: 1
+--- !u!114 &114702416435414282
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1408520069048592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e33ecb1f1386a98409f6f83b442d425a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefered_speed: 1.3
+  ksi: 0.5
+  sqrWaypointDistance: 1
+  attentivenessLevel: 0.1
+  deviationFactor: 0.1
+  minDistractionTime: 2
+  maxDistractionTime: 5
+  minAttentiveTime: 5
+  percentChanceBecomeDistracted: 50
+  alwaysDistracted: 0
 --- !u!136 &136976602712060804
 CapsuleCollider:
   m_ObjectHideFlags: 1
