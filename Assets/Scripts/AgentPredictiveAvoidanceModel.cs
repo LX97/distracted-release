@@ -53,7 +53,7 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
     /// <summary>
     /// 
     /// </summary>
-    public float preferredSpeed = 1.3f;
+    public float preferredSpeed = 1.33f;
 
     /// <summary>
     /// 
@@ -169,16 +169,9 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
         float goalDistance = preferredVelocity.sqrMagnitude;
         preferredVelocity *= preferredSpeed / Mathf.Sqrt(goalDistance);
 
-        // Goal Driven Force (Always added)
-        Vector3 goalForce = (preferredVelocity - rb.velocity) / ksi;
-        rb.AddForce(goalForce, ForceMode.Force);
+        Vector3 drivingForce = (preferredVelocity - rb.velocity) / ksi;
 
-
-        Vector3 drivingForce = Vector3.zero;
-
-       Vector3 idealDrivingForce = (preferredVelocity - rb.velocity) / ksi;
-
-        Vector3 desiredVelocity = rb.velocity + idealDrivingForce * Time.fixedDeltaTime; ///0.02 is the fixed update physics timestep
+        Vector3 desiredVelocity = rb.velocity + drivingForce * Time.fixedDeltaTime; ///0.02 is the fixed update physics timestep
         float desiredSpeed = desiredVelocity.magnitude;
 
         for (int i = 0; i < neighbor_agents.Length; ++i)
