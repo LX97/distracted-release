@@ -39,7 +39,10 @@ public class NormativeAgent : Agent
     /// </summary>
 	private Vector3 target;
 
-
+	/// <summary>
+	/// The type of agent
+	/// </summary>
+	private string typeOfAgent = "Normative";
 
     /// <summary>
     /// Starts this instance
@@ -74,6 +77,14 @@ public class NormativeAgent : Agent
         }
     }
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	public override string GetAgentType()
+	{
+		return typeOfAgent;
+	}
 
     /// <summary>
     /// 
@@ -84,6 +95,14 @@ public class NormativeAgent : Agent
         return currentWaypoint;
     }
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	public override Vector3 GetFinalGoal()
+	{
+		return target;
+	}
 
     /// <summary>
     /// Physics update

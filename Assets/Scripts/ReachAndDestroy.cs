@@ -46,6 +46,9 @@ public class ReachAndDestroy : MonoBehaviour {
 		initialNumberOfAgents = agents.Length;
 	}
 
+	/// <summary>
+	/// Update when an agent enters collider.
+	/// </summary>
 	void OnCollisionEnter(Collision collision)
 	{
 		if (collision.gameObject.tag == "Agent") {

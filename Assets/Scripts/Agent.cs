@@ -8,5 +8,7 @@ public abstract class Agent : MonoBehaviour {
 	/// </summary>
 	public abstract void SetTarget(Vector3 targetPosition);
 
+	public abstract string GetAgentType();
+	public abstract Vector3 GetFinalGoal();
     public abstract Vector3 GetCurrentGoal();
 }

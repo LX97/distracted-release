@@ -69,7 +69,6 @@ public class WallRepulsiveForce : MonoBehaviour {
 					Vector3 n_w = agentTransform.position - closestPointLineSegment (line_p.First, line_p.Second, agentTransform.position);
 
 
-
 					//Debug.DrawLine (line_p.First, line_p.Second, Color.blue, 0.02f);
 
 					//Debug.DrawLine (new Vector3(5, 0, box1.zmin), new Vector3(5, 0, box1.zmax), Color.red, 0.02f);

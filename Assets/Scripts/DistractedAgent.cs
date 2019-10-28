@@ -1,6 +1,7 @@
-﻿// ShowGoldenPath
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using BehaviorDesigner.Runtime;
 
 public class DistractedAgent : Agent
 {	
@@ -55,9 +56,20 @@ public class DistractedAgent : Agent
     int waypointIndex;
 
     /// <summary>
-    /// That actual waypoint
+    /// That current waypoint
+	/// May be actual or fuzzy
     /// </summary>
     Vector3 currentWaypoint;
+
+	/// <summary>
+	/// That actual waypoint
+	/// </summary>
+	Vector3 actualWaypoint;
+
+	/// <summary>
+	/// The fuzzy waypoint while distracted
+	/// </summary>
+	private Vector3 fuzzyWaypoint;
 
     /// <summary>
     /// Elapsed time
@@ -132,11 +144,38 @@ public class DistractedAgent : Agent
 	private float distractedChance;
 
 	/// <summary>
+	/// The maxium radius around the current waypoint to choose a fuzzy waypoint from while distracted
+	/// </summary>
+	public float maxFuzzyWaypointRadius = 3.0f;
+
+	/// <summary>
+	/// The current radius around the current waypoint to choose a fuzzy waypoint from while distracted
+	/// </summary>
+	private float currentFuzzyWaypointRadius;
+
+	/// <summary>
 	/// If this is set, distractedChance is overridden and the agent always becomes distracted
 	/// The agent still pays attention for 1 second when maxDistractionTime is reached, in order to recompute the path
 	/// If this is set, minAttentiveTime will be set to 0 when the simulation starts
 	/// </summary>
 	public bool alwaysDistracted = false;
+
+	/// <summary>
+	/// The type of agent
+	/// </summary>
+	private string typeOfAgent = "Distracted";
+
+	/// <summary>
+	/// Reference to this agent's behavior tree
+	/// </summary>
+	private BehaviorTree behaviorTree;
+
+	/// <summary>
+	/// Reference to Behavior Tree variable isDistracted
+	/// </summary>
+	SharedBool isDistractedBehaviorTree;
+
+	private IEnumerator coroutine;
 
     /// <summary>
     /// Starts this instance
@@ -145,19 +184,9 @@ public class DistractedAgent : Agent
 	{
 		rb = GetComponent<Rigidbody> ();
 		currentSpeed = prefered_speed;
-		distractedChance = percentChanceBecomeDistracted / 100;
-		float randDevDir = Random.value;
-		if (randDevDir <= 0.5f) { // Determines whether the agents deviates left or right while distracted (e.g. whether the agent is right-brained or left-brained)
-			deviationFactor = -deviationFactor;
-		}
 
-		// According to studies, distracted pedestrians move between 5-35% slower
-		minDistractionSpeed = 0.65f * prefered_speed;
-		maxDistractionSpeed = 0.95f * prefered_speed;
-
-		if (alwaysDistracted == true) {
-			minAttentiveTime = 0.0f;
-		}
+		behaviorTree = GetComponent<BehaviorTree> ();
+		isDistractedBehaviorTree = (SharedBool) behaviorTree.GetVariable ("isDistracted");
 
     }
 
@@ -186,6 +215,23 @@ public class DistractedAgent : Agent
 		direction = (currentWaypoint - transform.position);
     }
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	public override string GetAgentType()
+	{
+		return typeOfAgent;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	public override Vector3 GetFinalGoal()
+	{
+		return target;
+	}
 
     /// <summary>
     /// 
@@ -193,8 +239,22 @@ public class DistractedAgent : Agent
     /// <returns></returns>
     public override Vector3 GetCurrentGoal()
     {
-        return currentWaypoint;
+		// currentWaypoint may be a fuzzy waypoint
+        return currentWaypoint; 
     }
+	
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	public void MakeWaypointFuzzy()
+	{
+		actualWaypoint = currentWaypoint;
+		currentFuzzyWaypointRadius = Mathf.Clamp ((currentWaypoint - transform.position).magnitude * 0.1f, 0.0f, maxFuzzyWaypointRadius);
+		fuzzyWaypoint = Random.insideUnitCircle * currentFuzzyWaypointRadius;
+		currentWaypoint += fuzzyWaypoint;
+	}
 
 
     /// <summary>
@@ -205,83 +265,93 @@ public class DistractedAgent : Agent
 	}
 
 	/// <summary>
+	/// Getter method to check the agent's currentAttentiveness
+	/// </summary>
+	public float getCurrentAttentiveness(){
+		return currentAttentiveness;
+	}
+
+	/// <summary>
 	/// Make the agent pay attention
 	/// </summary>
 	public void PayAttention(){
+
+		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
+		currentAttentiveness = 1.0f;
+		agentPAMScript.SetAttentiveness (currentAttentiveness);
 		elapsedTimeDistracted = 0.0f;
 		isDistracted = false;
 		SetTarget (target);
-		currentAttentiveness = 1.0f;
 		currentSpeed = prefered_speed;
+		isDistractedBehaviorTree.SetValue (isDistracted);
+		behaviorTree.SetVariableValue ("makeWalkAndText", false);
 	}
 
 	/// <summary>
 	/// Make the agent become distracted
 	/// </summary>
-	public void BecomeDistracted(){
+	public void BecomeDistractedStopAndText(){
 		isDistracted = true;
-		direction = (currentWaypoint - transform.position);
-		direction += new Vector3 (-direction.z * deviationFactor, 0, direction.x * deviationFactor); //lateral deviation from a straight line while distracted
+		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
+		currentAttentiveness = 0.0f;
+		agentPAMScript.SetAttentiveness (currentAttentiveness);
+		isDistractedBehaviorTree.SetValue (isDistracted);
+	}
+
+	/// <summary>
+	/// Make the agent become distracted
+	/// </summary>
+	public void BecomeDistractedWalkAndText(){
+		isDistracted = true;
+		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
+		currentAttentiveness = 0.1f;
+		agentPAMScript.SetAttentiveness (currentAttentiveness);
+		MakeWaypointFuzzy ();
+		isDistractedBehaviorTree.SetValue (isDistracted);
+		//direction = (currentWaypoint - transform.position);
+		//direction += new Vector3 (-direction.z * deviationFactor, 0, direction.x * deviationFactor); //lateral deviation from a straight line while distracted
 		currentAttentiveness = attentivenessLevel;
 		elapsedTimeAttentive = 0.0f;
 		float randNum = Random.value;
-		distractionSpeed = minDistractionSpeed + ((maxDistractionSpeed - minDistractionSpeed) * attentivenessLevel); //scale speed based on level of attentiveness
+		//distractionSpeed = minDistractionSpeed + ((maxDistractionSpeed - minDistractionSpeed) * attentivenessLevel); //scale speed based on level of attentiveness
 		currentSpeed = distractionSpeed;
+
 	}
+
+	/// <summary>
+	/// Make the agent become distracted on click
+	/// </summary>
+	public void OnMouseDown(){
+		behaviorTree.SetVariableValue ("makeWalkAndText", true);
+	}
+
 
     /// <summary>
     /// Physics update
     /// </summary>
 	void FixedUpdate()
 	{
+		Debug.DrawLine (transform.position, currentWaypoint, Color.red);
+		Debug.DrawLine (transform.position, actualWaypoint, Color.blue);
         elapsed += Time.deltaTime;
-        if (elapsed > 1.0f)
-        {
-            elapsed -= 1.0f;
-            NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
-            if (path.corners.Length > 0)
-            {
-                waypointIndex = 1;
-                currentWaypoint = path.corners[waypointIndex];
-            }
-            else
-            {
-                waypointIndex = 0;
-                currentWaypoint = target;
-            }
+		if (!isDistracted) {
+			if (elapsed > 1.0f) {
+				elapsed -= 1.0f;
+				NavMesh.CalculatePath (transform.position, target, NavMesh.AllAreas, path);
+				if (path.corners.Length > 0) {
+					waypointIndex = 1;
+					currentWaypoint = path.corners [waypointIndex];
+				} else {
+					waypointIndex = 0;
+					currentWaypoint = target;
+				}
 
-            // Update the way to the goal every second.
-            //for (int i = 0; i < path.corners.Length - 1; i++)
-                //Debug.DrawLine(path.corners[i], path.corners[i + 1], Color.red, 1f);
-
-			//Distraction Logic
-			float randNum = Random.value;
-			if (isDistracted == false && (alwaysDistracted == true || randNum <= distractedChance && elapsedTimeAttentive > minAttentiveTime)) {
-				BecomeDistracted ();
-			} else if (elapsedTimeDistracted >= maxDistractionTime || (alwaysDistracted == false && elapsedTimeDistracted >= minDistractionTime && randNum <= 1.0f - distractedChance)) {
-				PayAttention (); 
 			}
-        }
+		}
         else
         {
             if (path.status == NavMeshPathStatus.PathComplete)
             {
-				if (isDistracted == false) {
-					direction = (currentWaypoint - transform.position);
-				}
-                // Goal driven force.
-				float goalDistance = direction.sqrMagnitude;
-				direction *= currentSpeed / Mathf.Sqrt(goalDistance);
-				Vector3 goalForce = (direction - rb.velocity) / ksi;
-				rb.AddForce(goalForce, ForceMode.Force);
-
-                //Debug.DrawLine(transform.position, currentWaypoint, Color.green, 0.02f);
-
-				if (currentAttentiveness == 1.0f) {
-					gameObject.GetComponentInChildren<Renderer> ().material.color = Color.green;
-				} else {
-					gameObject.GetComponentInChildren<Renderer> ().material.color = Color.red;
-				}
 
                 if ((currentWaypoint - transform.position).sqrMagnitude < sqrWaypointDistance)
                 {
@@ -298,14 +368,6 @@ public class DistractedAgent : Agent
                 }
             }
         }
-
-		//increment alert/distracted time each frame
-		if (isDistracted == true) {
-			elapsedTimeDistracted += Time.deltaTime;
-		} else {
-			elapsedTimeAttentive += Time.deltaTime;
-		}
-
 
 	}
 }

@@ -53,7 +53,7 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
     /// <summary>
     /// 
     /// </summary>
-    public float preferredSpeed = 1.33f;
+    public float preferredSpeed = 1.3f;
 
     /// <summary>
     /// 
@@ -134,8 +134,17 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
     /// 
     /// </summary>
     private Rigidbody rb;
-    
 
+
+	/// <summary>
+	/// The agent's attentiveness, always 1 unless changed when an agent becomes distracted
+	/// </summary>
+	private float attentiveness = 1.0f;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public float initialPreferredSpeed;
 
     /// <summary>
     /// Start insstance
@@ -151,8 +160,38 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
         neighbor_agents = GameObject.FindGameObjectsWithTag("Agent");
         
         _cosFov = Mathf.Cos((0.5f * Mathf.PI * fieldOfView) / 180.0f);   // agent field of view: 200 degree
+		initialPreferredSpeed = preferredSpeed;
     }
     
+	/// <summary>
+	/// Change the attentiveness level
+	/// </summary>
+	public void SetAttentiveness(float attentivenessLevel)
+	{
+		attentiveness = attentivenessLevel;
+		SetDistractionParameters ();
+	}
+
+	/// <summary>
+	/// Set distraction parameters
+	/// </summary>
+	public void SetDistractionParameters()
+	{
+		// According to studies, distracted pedestrians move between 5-35% slower
+		float minDistractionSpeed = 0.65f * preferredSpeed;
+		float maxDistractionSpeed = 0.95f * preferredSpeed;
+
+		if (attentiveness == 1.0f) {
+			preferredSpeed = initialPreferredSpeed;
+		} else if (attentiveness == 0.0f){
+			agentStrength = 0.0f;
+			preferredSpeed = 0.0f;
+		}else {
+			preferredSpeed = minDistractionSpeed + ((maxDistractionSpeed - minDistractionSpeed) * attentiveness);
+		}
+
+
+	}
 
 
     /// <summary>
@@ -165,13 +204,20 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
         bool collision_ = false;
         int count = 0;
 
-        Vector3 preferredVelocity = agentSelf.GetCurrentGoal() - transform.position;
+		Vector3 preferredVelocity = agentSelf.GetCurrentGoal () - transform.position;
+		
         float goalDistance = preferredVelocity.sqrMagnitude;
         preferredVelocity *= preferredSpeed / Mathf.Sqrt(goalDistance);
 
-        Vector3 drivingForce = (preferredVelocity - rb.velocity) / ksi;
+        // Goal Driven Force (Always added)
+        Vector3 goalForce = (preferredVelocity - rb.velocity) / ksi;
+        rb.AddForce(goalForce, ForceMode.Force);
 
-        Vector3 desiredVelocity = rb.velocity + drivingForce * Time.fixedDeltaTime; ///0.02 is the fixed update physics timestep
+        Vector3 drivingForce = Vector3.zero;
+
+        Vector3 idealDrivingForce = (preferredVelocity - rb.velocity) / ksi;
+
+        Vector3 desiredVelocity = rb.velocity + idealDrivingForce * Time.fixedDeltaTime; ///0.02 is the fixed update physics timestep
         float desiredSpeed = desiredVelocity.magnitude;
 
         for (int i = 0; i < neighbor_agents.Length; ++i)
