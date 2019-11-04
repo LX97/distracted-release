@@ -8,8 +8,6 @@ using UnityEngine;
 
 public class TraceSaver : MonoBehaviour {
 
-	public bool enabled = false;
-
 	private List<string[]> rowData = new List<string[]>();
 	string filePath;
 	string delimiter = ",";
@@ -18,33 +16,35 @@ public class TraceSaver : MonoBehaviour {
 
 	int count = 0;
 
-
+	Scene scene;
 	StringBuilder stringBuilder;
 
 	// Use this for initialization
 	void Start () {
-		if (enabled) {
-			stringBuilder = new StringBuilder ();
-			filePath = getPath ();
-			agents = GameObject.FindGameObjectsWithTag ("Agent");
-			Scene scene = SceneManager.GetActiveScene();
-			if (!File.Exists (filePath))
-				File.WriteAllText (filePath, scene.name.ToString ());
-			else
-				File.AppendAllText (filePath, scene.name.ToString ());
-		}
+
+		stringBuilder = new StringBuilder ();
+		agents = GameObject.FindGameObjectsWithTag ("Agent");
+		scene = SceneManager.GetActiveScene();
+		filePath = getPath ();
+
+		if (!File.Exists (filePath))
+			File.WriteAllText (filePath, scene.name);
+		else
+			File.AppendAllText (filePath, scene.name);
+		
 	}
 
 	// Following method is used to retrive the relative path as device platform
 	private string getPath(){
+		string filename = scene.name + "_" + DateTime.Now.ToString ("yyyy-mm-dd-hh-mm-ss") + ".csv";
 		#if UNITY_EDITOR
-		return Application.dataPath + "/Traces/" + DateTime.Now.ToString("yyyy-mm-dd-hh-mm-ss") + ".csv" ;
+		return Application.dataPath + "/Traces/" + filename ;
 		#elif UNITY_ANDROID
-		return Application.persistentDataPath + DateTime.Now.ToString("yyyy-mm-dd-hh-mm-ss") + ".csv" ;
+		return Application.persistentDataPath + filename ;
 		#elif UNITY_IPHONE
-		return Application.persistentDataPath + "/" + DateTime.Now.ToString("yyyy-mm-dd-hh-mm-ss") + ".csv";
+		return Application.persistentDataPath + "/" + filename;
 		#else
-		return Application.dataPath + "/" + DateTime.Now.ToString("yyyy-mm-dd-hh-mm-ss") + ".csv" ;
+		return Application.dataPath + "/" filename;
 		#endif
 	}
 

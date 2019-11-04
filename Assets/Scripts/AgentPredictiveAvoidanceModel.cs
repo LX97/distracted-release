@@ -53,7 +53,7 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
     /// <summary>
     /// 
     /// </summary>
-    public float preferredSpeed = 1.3f;
+    public float preferredSpeed = 0.3f;
 
     /// <summary>
     /// 
@@ -142,9 +142,19 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
 	private float attentiveness = 1.0f;
 
 	/// <summary>
-	/// 
+	/// The initial preferred speed
 	/// </summary>
-	public float initialPreferredSpeed;
+	private float initialPreferredSpeed;
+
+	/// <summary>
+	/// The scaling factor applied to the preferred speed
+	/// </summary>
+	private float preferredSpeedScale;
+
+	/// <summary>
+	/// The agents field of view
+	/// </summary>
+	private float initialFieldOfView;
 
     /// <summary>
     /// Start insstance
@@ -161,36 +171,44 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
         
         _cosFov = Mathf.Cos((0.5f * Mathf.PI * fieldOfView) / 180.0f);   // agent field of view: 200 degree
 		initialPreferredSpeed = preferredSpeed;
+		initialFieldOfView = fieldOfView;
     }
     
 	/// <summary>
 	/// Change the attentiveness level
 	/// </summary>
-	public void SetAttentiveness(float attentivenessLevel)
+	public void SetAttentiveness(float attentivenessLevel, bool lookingDown)
 	{
 		attentiveness = attentivenessLevel;
-		SetDistractionParameters ();
+		SetDistractionParameters (lookingDown);
 	}
 
 	/// <summary>
 	/// Set distraction parameters
 	/// </summary>
-	public void SetDistractionParameters()
+	public void SetDistractionParameters(bool lookingDown)
 	{
 		// According to studies, distracted pedestrians move between 5-35% slower
-		float minDistractionSpeed = 0.65f * preferredSpeed;
-		float maxDistractionSpeed = 0.95f * preferredSpeed;
+		float minDistractionScale = 0.65f;
+		float maxDistractionScale = 0.95f;
 
 		if (attentiveness == 1.0f) {
-			preferredSpeed = initialPreferredSpeed;
+			preferredSpeedScale = 1.0f;
+			fieldOfView = initialFieldOfView;
 		} else if (attentiveness == 0.0f){
 			agentStrength = 0.0f;
-			preferredSpeed = 0.0f;
+			preferredSpeedScale = 0.0f;
 		}else {
-			preferredSpeed = minDistractionSpeed + ((maxDistractionSpeed - minDistractionSpeed) * attentiveness);
+			agentStrength = 0.0f;
+			preferredSpeedScale = minDistractionScale + ((maxDistractionScale - minDistractionScale) * attentiveness);
 		}
 
+		if (lookingDown) {
+			fieldOfView = 40.0f;
+			_cosFov = Mathf.Cos((0.5f * Mathf.PI * fieldOfView) / 180.0f); 
+		}
 
+		preferredSpeed = preferredSpeedScale * initialPreferredSpeed;
 	}
 
 

@@ -5,16 +5,6 @@ using BehaviorDesigner.Runtime;
 
 public class DistractedAgent : Agent
 {	
-    /// <summary>
-    /// Agents preferred speed
-    /// </summary>
-	public float prefered_speed = 1.3f;
-
-	/// <summary>
-	/// Agent's speed while distracted
-	/// </summary>
-	private float distractionSpeed;
-
 	/// <summary>
 	/// Agent's min speed while distracted
 	/// </summary>
@@ -183,7 +173,6 @@ public class DistractedAgent : Agent
     void Start()
 	{
 		rb = GetComponent<Rigidbody> ();
-		currentSpeed = prefered_speed;
 
 		behaviorTree = GetComponent<BehaviorTree> ();
 		isDistractedBehaviorTree = (SharedBool) behaviorTree.GetVariable ("isDistracted");
@@ -278,51 +267,103 @@ public class DistractedAgent : Agent
 
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
 		currentAttentiveness = 1.0f;
-		agentPAMScript.SetAttentiveness (currentAttentiveness);
+		agentPAMScript.SetAttentiveness (currentAttentiveness, false);
 		elapsedTimeDistracted = 0.0f;
 		isDistracted = false;
 		SetTarget (target);
-		currentSpeed = prefered_speed;
 		isDistractedBehaviorTree.SetValue (isDistracted);
-		behaviorTree.SetVariableValue ("makeWalkAndText", false);
+		behaviorTree.SetVariableValue ("makeStopAndText", false);
+
+		transform.Find ("phoneStopTextSprite").GetComponent<SpriteRenderer> ().enabled = false;
+		transform.Find ("phoneTextSprite").GetComponent<SpriteRenderer> ().enabled = false;
+		transform.Find ("phoneRingSprite").GetComponent<SpriteRenderer> ().enabled = false;
+		transform.Find ("phoneSurfSprite").GetComponent<SpriteRenderer> ().enabled = false;
+		transform.Find ("phoneReadSprite").GetComponent<SpriteRenderer> ().enabled = false;
+		transform.Find ("phoneGameSprite").GetComponent<SpriteRenderer> ().enabled = false;
 	}
 
 	/// <summary>
-	/// Make the agent become distracted
+	/// Make the agent become distracted, fully stopping to text
 	/// </summary>
 	public void BecomeDistractedStopAndText(){
 		isDistracted = true;
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
 		currentAttentiveness = 0.0f;
-		agentPAMScript.SetAttentiveness (currentAttentiveness);
+		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
 		isDistractedBehaviorTree.SetValue (isDistracted);
+		transform.Find ("phoneStopTextSprite").GetComponent<SpriteRenderer> ().enabled = true;
 	}
 
 	/// <summary>
-	/// Make the agent become distracted
+	/// Make the agent become distracted texting on their phone
 	/// </summary>
 	public void BecomeDistractedWalkAndText(){
 		isDistracted = true;
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
-		currentAttentiveness = 0.1f;
-		agentPAMScript.SetAttentiveness (currentAttentiveness);
+		currentAttentiveness = 0.2f; 
+		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
-		//direction = (currentWaypoint - transform.position);
-		//direction += new Vector3 (-direction.z * deviationFactor, 0, direction.x * deviationFactor); //lateral deviation from a straight line while distracted
-		currentAttentiveness = attentivenessLevel;
-		elapsedTimeAttentive = 0.0f;
-		float randNum = Random.value;
-		//distractionSpeed = minDistractionSpeed + ((maxDistractionSpeed - minDistractionSpeed) * attentivenessLevel); //scale speed based on level of attentiveness
-		currentSpeed = distractionSpeed;
+		transform.Find ("phoneTextSprite").GetComponent<SpriteRenderer> ().enabled = true;
+	}
 
+	/// <summary>
+	/// Make the agent become distracted reading on their phone
+	/// </summary>
+	public void BecomeDistractedWalkAndRead(){
+		isDistracted = true;
+		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
+		currentAttentiveness = 0.2f; 
+		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
+		MakeWaypointFuzzy ();
+		isDistractedBehaviorTree.SetValue (isDistracted);
+		transform.Find ("phoneReadSprite").GetComponent<SpriteRenderer> ().enabled = true;
+	}
+
+	/// <summary>
+	/// Make the agent become distracted playing a mobile game
+	/// </summary>
+	public void BecomeDistractedWalkAndGame(){
+		isDistracted = true;
+		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
+		currentAttentiveness = 0.2f;
+		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
+		MakeWaypointFuzzy ();
+		isDistractedBehaviorTree.SetValue (isDistracted);
+		transform.Find ("phoneGameSprite").GetComponent<SpriteRenderer> ().enabled = true;
+	}
+
+	/// <summary>
+	/// Make the agent become distracted talking on the phone
+	/// </summary>
+	public void BecomeDistractedWalkAndTalk(){
+		isDistracted = true;
+		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
+		currentAttentiveness = 0.2f;
+		agentPAMScript.SetAttentiveness (currentAttentiveness, false);
+		MakeWaypointFuzzy ();
+		isDistractedBehaviorTree.SetValue (isDistracted);
+		transform.Find ("phoneRingSprite").GetComponent<SpriteRenderer> ().enabled = true;
+	}
+
+	/// <summary>
+	/// Make the agent become distracted browsing apps or surfing the internet
+	/// </summary>
+	public void BecomeDistractedWalkAndSurf(){
+		isDistracted = true;
+		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
+		currentAttentiveness = 0.2f;
+		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
+		MakeWaypointFuzzy ();
+		isDistractedBehaviorTree.SetValue (isDistracted);
+		transform.Find ("phoneSurfSprite").GetComponent<SpriteRenderer> ().enabled = true;
 	}
 
 	/// <summary>
 	/// Make the agent become distracted on click
 	/// </summary>
 	public void OnMouseDown(){
-		behaviorTree.SetVariableValue ("makeWalkAndText", true);
+		behaviorTree.SetVariableValue ("makeStopAndText", true);
 	}
 
 
@@ -331,13 +372,12 @@ public class DistractedAgent : Agent
     /// </summary>
 	void FixedUpdate()
 	{
-		Debug.DrawLine (transform.position, currentWaypoint, Color.red);
-		Debug.DrawLine (transform.position, actualWaypoint, Color.blue);
         elapsed += Time.deltaTime;
-		if (!isDistracted) {
-			if (elapsed > 1.0f) {
+		if (elapsed > 1.0f) {
 				elapsed -= 1.0f;
 				NavMesh.CalculatePath (transform.position, target, NavMesh.AllAreas, path);
+
+			if (!isDistracted) {
 				if (path.corners.Length > 0) {
 					waypointIndex = 1;
 					currentWaypoint = path.corners [waypointIndex];
@@ -345,7 +385,6 @@ public class DistractedAgent : Agent
 					waypointIndex = 0;
 					currentWaypoint = target;
 				}
-
 			}
 		}
         else

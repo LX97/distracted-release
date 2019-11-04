@@ -11,7 +11,7 @@ public class ReachAndDestroy : MonoBehaviour {
 	/// <summary>
 	/// The number of agents that have reached the goal
 	/// </summary>
-	public int countAgentsDestroyed = 0;
+	private int countAgentsDestroyed = 0;
 
 	/// <summary>
 	/// The number of agents that the simulation started with
@@ -60,6 +60,10 @@ public class ReachAndDestroy : MonoBehaviour {
 			simulationCompletionTime = Time.fixedUnscaledTime;
 			flowRate = initialNumberOfAgents / simulationCompletionTime;
 		}
+	}
+
+	public int GetNumAgentsReachedGoal(){
+		return countAgentsDestroyed;
 	}
 
 	/// <summary>

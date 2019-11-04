@@ -31,10 +31,7 @@ public class UIGraph : MonoBehaviour
 	// Disable Field Unused warning
 	#pragma warning disable 0414
 
-
-	private GameObject goal; 
-
-	private ReachAndDestroy reachGoalScript;
+	private SimulationMaster simulationMasterScript;
 
 	// User inputs, print and graph in one!
 	[DebugGUIPrint]
@@ -45,20 +42,19 @@ public class UIGraph : MonoBehaviour
 
 	void Awake()
 	{
-		goal = GameObject.FindGameObjectWithTag ("Goal");
-
-		reachGoalScript = goal.GetComponent<ReachAndDestroy> ();
+		
+		simulationMasterScript = Camera.main.GetComponent<SimulationMaster> ();
 
 	}
 
 	void Update()
 	{
 		// Update the fields our attributes are graphing
-		numReachedGoal = (float) reachGoalScript.countAgentsDestroyed;
-		numRemaining = (float)reachGoalScript.initialNumberOfAgents - numReachedGoal;
+		numReachedGoal = (float) simulationMasterScript.GetNumAgentsReachedGoal();
+		numRemaining = (float) simulationMasterScript.GetNumInitialAgents() - numReachedGoal;
 		if (numRemaining == 0.0f) {
-			DebugGUI.LogPersistent ("simulationTime", "Time to complete simulation: " + reachGoalScript.simulationCompletionTime.ToString());
-			DebugGUI.LogPersistent ("Flow Rate", "Flow Rate: " + reachGoalScript.flowRate.ToString());
+			DebugGUI.LogPersistent ("simulationTime", "Time to complete simulation: " + simulationMasterScript.GetSimulationCompletionTime().ToString());
+			DebugGUI.LogPersistent ("Flow Rate", "Flow Rate: " + simulationMasterScript.GetFlowRate().ToString());
 		}
 
 	}

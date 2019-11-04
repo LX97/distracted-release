@@ -25,7 +25,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_DisplayName: Pixels
   m_Id: ea785d3b-1ebf-43e8-9e0d-62cd89c77f55
-  m_OutputSize: 480
+  m_OutputSize: 0
   m_AspectRatio: 3
   m_ForceEvenSize: 1
 --- !u!114 &114755551745461972
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_DurationMode: 0
   m_SynchFrameRate: 1
   m_BaseFileName:
-    m_Pattern: <scn>-20-distracted.<ext>
+    m_Pattern: <scn>-4_12-distracted.<ext>
   m_DestinationPath:
     m_root: 0
     m_leaf: D:/Videos/Unity

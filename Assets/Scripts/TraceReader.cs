@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.SceneManagement;
+using UnityEditor;
+
 
 public class TraceReader : MonoBehaviour {
-
-	/// <summary>
-	/// Toggle whether the TraceReader is active or not
-	/// </summary>
-	public bool enabled = false;
 
 	/// <summary>
 	/// The csv file to be read. These are found in Assets/Traces/
@@ -19,12 +16,12 @@ public class TraceReader : MonoBehaviour {
 	/// <summary>
 	/// The normative agent prefab
 	/// </summary>
-	public Transform normativeAgentPrefab;
+	private GameObject normativeAgentPrefab;
 
 	/// <summary>
 	/// The distracted agent prefab
 	/// </summary>
-	public Transform distractedAgentPrefab;
+	private GameObject distractedAgentPrefab;
 
 	List<Transform> agentList;
 	private string[] lines;
@@ -32,6 +29,7 @@ public class TraceReader : MonoBehaviour {
 	private int numFrames = 0;
 	private int currentFrame = 0;
 	private int lineAgentDataBegins = 1;
+	private bool enabled = true;
 
 	[SerializeField]
 	private Material attentiveMat;
@@ -39,16 +37,21 @@ public class TraceReader : MonoBehaviour {
 	private Material distractedMat;
 
 	// Use this for initialization
-	void Awake () {
-		if (enabled) {
-			agentList = new List<Transform> ();
-			lines = file.text.Split ("\n" [0]);
-			//string[] lastLineData = lines [lines.Length - 1].Split ("," [0]);
-			//SceneManager.LoadScene(lines[0]);
+	void Start () {
 
-			//Debug.Log (lines [lines.Length - 1]);
-			//numFrames = int.Parse(lastLineData [0]);
-
+		var crowdGenerators = GameObject.FindGameObjectsWithTag("Runtime Crowd Generator");
+		for (int i = 0; i < crowdGenerators.Length; i++) {
+			crowdGenerators [i].SetActive(false); // Deactivate any runtime crowd generators in the scene
+		}
+		var agents = GameObject.FindGameObjectsWithTag("Agent");
+		for (int i = 0; i < agents.Length; i++) {
+			agents [i].SetActive(false); // Deactivate any agents placed in the scene before runtime
+		}
+		normativeAgentPrefab = (GameObject) AssetDatabase.LoadAssetAtPath<Object>("Assets/Prefabs/NormativeAgent.prefab");
+		distractedAgentPrefab = (GameObject) AssetDatabase.LoadAssetAtPath<Object>("Assets/Prefabs/DistractedAgent.prefab");
+		agentList = new List<Transform> ();
+		lines = file.text.Split ("\n" [0]);
+		if (lines [0].Trim() == SceneManager.GetActiveScene ().name.Trim()) {
 			for (int i = lineAgentDataBegins; i < lines.Length; i++) {
 
 				//Splice the data on each line
@@ -58,14 +61,14 @@ public class TraceReader : MonoBehaviour {
 				if (data [0] == "0") {
 					Vector3 position = new Vector3 (float.Parse (data [2]), float.Parse (data [3]), float.Parse (data [4]));
 					Vector3 goal = new Vector3 (float.Parse (data [5]), float.Parse (data [6]), float.Parse (data [7]));
-					Transform agent;
+					GameObject agent;
 
 					if (data [1] == "Distracted") {
-						agent = Instantiate (distractedAgentPrefab, position, Quaternion.identity) as Transform;
+						agent = Instantiate (distractedAgentPrefab, position, Quaternion.identity) as GameObject;
 					} else {
-						agent = Instantiate (normativeAgentPrefab, position, Quaternion.identity) as Transform;
+						agent = Instantiate (normativeAgentPrefab, position, Quaternion.identity) as GameObject;
 					}
-					agentList.Add (agent);
+					agentList.Add (agent.transform);
 					agent.transform.parent = this.transform;
 					foreach (MonoBehaviour script in agent.transform.GetComponents<MonoBehaviour>()) {
 						script.enabled = false;
@@ -73,10 +76,11 @@ public class TraceReader : MonoBehaviour {
 				} else { //We are past Time 0
 					break;
 				}
-
 			}
+		} else { // Scene name doesn't match scene stored in trace file
+			enabled = false;
+			Debug.Log ("Scene name doesn't match scene stored in trace file");
 		}
-
 	}
 
 	
@@ -104,7 +108,6 @@ public class TraceReader : MonoBehaviour {
 				agentCount++;
 			}
 
-			//Debug.Log (count);
 		}
 	}
 }
