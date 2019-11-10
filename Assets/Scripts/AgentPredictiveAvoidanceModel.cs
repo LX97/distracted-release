@@ -53,7 +53,7 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
     /// <summary>
     /// 
     /// </summary>
-    public float preferredSpeed = 0.3f;
+    public float preferredSpeed = 1.3f;
 
     /// <summary>
     /// 
@@ -229,7 +229,7 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
 
         // Goal Driven Force (Always added)
         Vector3 goalForce = (preferredVelocity - rb.velocity) / ksi;
-        rb.AddForce(goalForce, ForceMode.Force);
+		rb.AddForce(goalForce, ForceMode.Force);
 
         Vector3 drivingForce = Vector3.zero;
 
@@ -238,42 +238,44 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
         Vector3 desiredVelocity = rb.velocity + idealDrivingForce * Time.fixedDeltaTime; ///0.02 is the fixed update physics timestep
         float desiredSpeed = desiredVelocity.magnitude;
 
-        for (int i = 0; i < neighbor_agents.Length; ++i)
-        {
-            GameObject agent = neighbor_agents[i];
+		for (int i = 0; i < neighbor_agents.Length; ++i) {
+			GameObject agent = neighbor_agents [i];
 			if (agent != null) {
-                AgentPredictiveAvoidanceModel otherAgent = agent.GetComponent<AgentPredictiveAvoidanceModel> ();
-				Rigidbody otherAgentRB = agent.GetComponent<Rigidbody> ();
-				Transform otherAgentTransform = agent.GetComponent<Transform> ();
+				if ((agent.transform.position - transform.position).magnitude < neighborDist) {
+					AgentPredictiveAvoidanceModel otherAgent = agent.GetComponent<AgentPredictiveAvoidanceModel> ();
+					Rigidbody otherAgentRB = agent.GetComponent<Rigidbody> ();
+					Transform otherAgentTransform = agent.GetComponent<Transform> ();
             
 
-				// ignore own tag and far distance agent
-				if (this.GetInstanceID () == agent.GetInstanceID ())
-					continue;
-
-				float combinedRadius = agentPersonalSpace + otherAgent.agentRadius;
-
-				Vector3 w = otherAgentTransform.position - transform.position;
-				if (w.sqrMagnitude < combinedRadius * combinedRadius) {
-					collision_ = true;
-					t_pairs.Add (new KeyValuePair<float, GameObject> (0.0f, agent));
-				} else {
-					Vector3 relDir = w.normalized;
-					if (Vector3.Dot (relDir, rb.velocity.normalized) < _cosFov)
+					// ignore own tag and far distance agent
+					if (this.GetInstanceID () == agent.GetInstanceID ())
 						continue;
 
-					float tc = rayIntersectsDisc (transform.position, otherAgentTransform.position, desiredVelocity - otherAgentRB.velocity, combinedRadius);
-					if (tc < timeHorizon) {
-						if (t_pairs.Count < maxNeighbors) {
-							t_pairs.Add (new KeyValuePair<float, GameObject> (tc, agent));
-						} else if (tc < t_pairs.ToArray () [0].Key) {
-							t_pairs.RemoveAt (t_pairs.Count - 1);
-							t_pairs.Add (new KeyValuePair<float, GameObject> (tc, agent));
-						} //What to do if max neighbours is reached THIS NEED TO BE IMPLEMENTED
+					float combinedRadius = agentPersonalSpace + otherAgent.agentRadius;
+
+					Vector3 w = otherAgentTransform.position - transform.position;
+					if (w.sqrMagnitude < combinedRadius * combinedRadius) {
+						collision_ = true;
+						t_pairs.Add (new KeyValuePair<float, GameObject> (0.0f, agent));
+					} else {
+						Vector3 relDir = w.normalized;
+						if (Vector3.Dot (relDir, rb.velocity.normalized) < _cosFov)
+							continue;
+
+						float tc = rayIntersectsDisc (transform.position, otherAgentTransform.position, desiredVelocity - otherAgentRB.velocity, combinedRadius);
+						if (tc < timeHorizon) {
+							if (t_pairs.Count < maxNeighbors) {
+								t_pairs.Add (new KeyValuePair<float, GameObject> (tc, agent));
+							} else if (tc < t_pairs.ToArray () [0].Key) {
+								t_pairs.RemoveAt (t_pairs.Count - 1);
+								t_pairs.Add (new KeyValuePair<float, GameObject> (tc, agent));
+							} //What to do if max neighbours is reached THIS NEED TO BE IMPLEMENTED
+						}
 					}
 				}
+
 			}
-        }
+		}
 
 		//Debug.Log ("Adding Collision Force");
         for(int i = 0; i < t_pairs.Count; ++i)

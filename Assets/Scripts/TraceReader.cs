@@ -28,7 +28,8 @@ public class TraceReader : MonoBehaviour {
 	private int count = 0;
 	private int numFrames = 0;
 	private int currentFrame = 0;
-	private int lineAgentDataBegins = 1;
+	private int lineAgentDataBegins = 2;
+	private int initialNumberOfAgents;
 	private bool enabled = true;
 
 	[SerializeField]
@@ -52,7 +53,8 @@ public class TraceReader : MonoBehaviour {
 		agentList = new List<Transform> ();
 		lines = file.text.Split ("\n" [0]);
 		if (lines [0].Trim() == SceneManager.GetActiveScene ().name.Trim()) {
-			for (int i = lineAgentDataBegins; i < lines.Length; i++) {
+			initialNumberOfAgents = int.Parse (lines [1]);
+			for (int i = lineAgentDataBegins; i < lineAgentDataBegins + initialNumberOfAgents; i++) {
 
 				//Splice the data on each line
 				string[] data = lines [i].Split ("," [0]);
@@ -73,8 +75,6 @@ public class TraceReader : MonoBehaviour {
 					foreach (MonoBehaviour script in agent.transform.GetComponents<MonoBehaviour>()) {
 						script.enabled = false;
 					}
-				} else { //We are past Time 0
-					break;
 				}
 			}
 		} else { // Scene name doesn't match scene stored in trace file
@@ -82,7 +82,6 @@ public class TraceReader : MonoBehaviour {
 			Debug.Log ("Scene name doesn't match scene stored in trace file");
 		}
 	}
-
 	
 	// Update is called once per frame
 	void FixedUpdate () {
@@ -92,7 +91,7 @@ public class TraceReader : MonoBehaviour {
 			int agentCount = 0;
 
 			// Jump to the line where we left off
-			for (int i = (currentFrame * agentList.Count) + lineAgentDataBegins; i < ((currentFrame + 1) * agentList.Count) + lineAgentDataBegins && i < lines.Length; i++) {
+			for (int i = (currentFrame * initialNumberOfAgents) + lineAgentDataBegins; i < ((currentFrame + 1) * initialNumberOfAgents) + lineAgentDataBegins && i < lines.Length; i++) {
 					
 				string[] data = lines [i].Split ("," [0]);
 				if (data.Length > 1) {
@@ -100,8 +99,12 @@ public class TraceReader : MonoBehaviour {
 					float attentiveness = float.Parse (data [8]);
 					if (data [1] == "Distracted" && attentiveness < 1.0f) {
 						agentList [agentCount].Find ("Graphics").GetComponent<Renderer> ().material = distractedMat;
+						Debug.Log ("distracted");
+						var sprite = agentList [agentCount].Find ("phoneStopTextSprite").GetComponent<SpriteRenderer> ();
+						sprite.enabled = true;
 					} else if (data [1] == "Distracted") { // and attentiveness is 1.0f
 						agentList [agentCount].Find ("Graphics").GetComponent<Renderer> ().material = attentiveMat;
+
 					}
 					agentList [agentCount].transform.position = position;
 				}

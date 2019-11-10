@@ -41,6 +41,7 @@ GameObject:
   - component: {fileID: 114780872119989802}
   - component: {fileID: 114694660760802004}
   - component: {fileID: 114995087284828294}
+  - component: {fileID: 114112428264760382}
   m_Layer: 0
   m_Name: NormativeAgent
   m_TagString: Agent
@@ -131,6 +132,17 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
+--- !u!114 &114112428264760382
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1552776143923724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91eabee62dfdfed498d0815becbb94ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114694660760802004
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -156,6 +156,11 @@ public class DistractedAgent : Agent
 	private string typeOfAgent = "Distracted";
 
 	/// <summary>
+	/// The current attentive state (activity) of the agent
+	/// </summary>
+	private string attentiveState = "Paying Attention";
+
+	/// <summary>
 	/// Reference to this agent's behavior tree
 	/// </summary>
 	private BehaviorTree behaviorTree;
@@ -165,7 +170,10 @@ public class DistractedAgent : Agent
 	/// </summary>
 	SharedBool isDistractedBehaviorTree;
 
-	private IEnumerator coroutine;
+	/// <summary>
+	/// Controls whether the agent deviates left or right while distracted
+	/// </summary>
+	private int deviationDirection = 1;
 
     /// <summary>
     /// Starts this instance
@@ -177,6 +185,11 @@ public class DistractedAgent : Agent
 		behaviorTree = GetComponent<BehaviorTree> ();
 		isDistractedBehaviorTree = (SharedBool) behaviorTree.GetVariable ("isDistracted");
 
+		//Determine if this agent has right or left hemisphere attentional bias
+		float rand = Random.value;
+		if (rand < 0.1f) {
+			deviationDirection = -1;
+		}
     }
 
     /// <summary>
@@ -241,23 +254,45 @@ public class DistractedAgent : Agent
 	{
 		actualWaypoint = currentWaypoint;
 		currentFuzzyWaypointRadius = Mathf.Clamp ((currentWaypoint - transform.position).magnitude * 0.1f, 0.0f, maxFuzzyWaypointRadius);
-		fuzzyWaypoint = Random.insideUnitCircle * currentFuzzyWaypointRadius;
-		currentWaypoint += fuzzyWaypoint;
+
+		Vector3 forward = (currentWaypoint - transform.position).normalized;
+		Vector3 fuzzyPoint = Quaternion.AngleAxis (Random.Range(0.0f, deviationDirection * 360.0f), Vector3.up) * forward * currentFuzzyWaypointRadius;
+		bool foundNavMeshPosition = false;
+		NavMeshHit hit;
+		for (int i = 0; i < 10; i++) {
+			if (NavMesh.SamplePosition (fuzzyPoint, out hit, 1.0f, NavMesh.AllAreas)) {
+				fuzzyPoint = hit.position;
+				foundNavMeshPosition = true;
+				break;
+			}
+		}
+
+
+		if (foundNavMeshPosition) {
+			currentWaypoint += fuzzyPoint;
+		}// else currentWaypoint doesn't change
 	}
 
 
     /// <summary>
     /// Getter method to check if the agent is distracted
     /// </summary>
-    public bool checkDistracted(){
+    public bool CheckDistracted(){
 		return isDistracted;
 	}
 
 	/// <summary>
 	/// Getter method to check the agent's currentAttentiveness
 	/// </summary>
-	public float getCurrentAttentiveness(){
+	public float GetCurrentAttentiveness(){
 		return currentAttentiveness;
+	}
+
+	/// <summary>
+	/// Getter method to check the agent's attentiveness state
+	/// </summary>
+	public string GetAttentiveState(){
+		return attentiveState;
 	}
 
 	/// <summary>
@@ -273,13 +308,11 @@ public class DistractedAgent : Agent
 		SetTarget (target);
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		behaviorTree.SetVariableValue ("makeStopAndText", false);
-
-		transform.Find ("phoneStopTextSprite").GetComponent<SpriteRenderer> ().enabled = false;
-		transform.Find ("phoneTextSprite").GetComponent<SpriteRenderer> ().enabled = false;
-		transform.Find ("phoneRingSprite").GetComponent<SpriteRenderer> ().enabled = false;
-		transform.Find ("phoneSurfSprite").GetComponent<SpriteRenderer> ().enabled = false;
-		transform.Find ("phoneReadSprite").GetComponent<SpriteRenderer> ().enabled = false;
-		transform.Find ("phoneGameSprite").GetComponent<SpriteRenderer> ().enabled = false;
+		attentiveState = "Paying Attention";
+		var sprites = GetComponentsInChildren<SpriteRenderer>();
+		for (int i = 0; i < sprites.Length; i++) {
+			sprites [i].enabled = false;
+		}
 	}
 
 	/// <summary>
@@ -292,6 +325,7 @@ public class DistractedAgent : Agent
 		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		transform.Find ("phoneStopTextSprite").GetComponent<SpriteRenderer> ().enabled = true;
+		attentiveState = "StopText";
 	}
 
 	/// <summary>
@@ -305,6 +339,7 @@ public class DistractedAgent : Agent
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		transform.Find ("phoneTextSprite").GetComponent<SpriteRenderer> ().enabled = true;
+		attentiveState = "Text";
 	}
 
 	/// <summary>
@@ -318,6 +353,7 @@ public class DistractedAgent : Agent
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		transform.Find ("phoneReadSprite").GetComponent<SpriteRenderer> ().enabled = true;
+		attentiveState = "Read";
 	}
 
 	/// <summary>
@@ -331,6 +367,7 @@ public class DistractedAgent : Agent
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		transform.Find ("phoneGameSprite").GetComponent<SpriteRenderer> ().enabled = true;
+		attentiveState = "Game";
 	}
 
 	/// <summary>
@@ -344,6 +381,7 @@ public class DistractedAgent : Agent
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		transform.Find ("phoneRingSprite").GetComponent<SpriteRenderer> ().enabled = true;
+		attentiveState = "Talk";
 	}
 
 	/// <summary>
@@ -357,6 +395,7 @@ public class DistractedAgent : Agent
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		transform.Find ("phoneSurfSprite").GetComponent<SpriteRenderer> ().enabled = true;
+		attentiveState = "Surf";
 	}
 
 	/// <summary>
@@ -372,6 +411,7 @@ public class DistractedAgent : Agent
     /// </summary>
 	void FixedUpdate()
 	{
+		//Debug.DrawLine (transform.position, currentWaypoint, Color.blue);
         elapsed += Time.deltaTime;
 		if (elapsed > 1.0f) {
 				elapsed -= 1.0f;
@@ -404,6 +444,9 @@ public class DistractedAgent : Agent
                         waypointIndex = 0;
                         currentWaypoint = target;
                     }
+					if (isDistracted) {
+						MakeWaypointFuzzy ();
+					}
                 }
             }
         }

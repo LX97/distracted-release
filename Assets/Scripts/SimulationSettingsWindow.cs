@@ -50,7 +50,7 @@ class SimulationSettingsWindow : EditorWindow {
 	/// <summary>
 	/// The line in the trace file where the agent data starts
 	/// </summary>
-	private int lineAgentDataBegins = 1;
+	private int lineAgentDataBegins = 2;
 
 	/// <summary>
 	/// How many normative agents to generate when using the random generator
@@ -143,7 +143,8 @@ class SimulationSettingsWindow : EditorWindow {
 		GameObject agent;
 		SetTargetOnLoad setTargetScript;
 		lines = file.text.Split ("\n" [0]);
-		for (int i = lineAgentDataBegins; i < lines.Length; i++) {
+		int numAgents = int.Parse(lines [1]);
+		for (int i = lineAgentDataBegins; i <= lineAgentDataBegins + numAgents; i++) {
 
 			//Splice the data on each line
 			string[] data = lines [i].Split ("," [0]);
@@ -165,8 +166,6 @@ class SimulationSettingsWindow : EditorWindow {
 				setTargetScript.enabled = true;
 				setTargetScript.target = goalPosition;
 
-			} else { //We are past Time 0
-				break;
 			}
 
 		}

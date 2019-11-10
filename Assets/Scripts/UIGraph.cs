@@ -55,6 +55,7 @@ public class UIGraph : MonoBehaviour
 		if (numRemaining == 0.0f) {
 			DebugGUI.LogPersistent ("simulationTime", "Time to complete simulation: " + simulationMasterScript.GetSimulationCompletionTime().ToString());
 			DebugGUI.LogPersistent ("Flow Rate", "Flow Rate: " + simulationMasterScript.GetFlowRate().ToString());
+			DebugGUI.LogPersistent ("Avg. Path Length", "Avg. Path Length: " + simulationMasterScript.GetAvgPathLength().ToString());
 		}
 
 	}

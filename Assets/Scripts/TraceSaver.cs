@@ -5,6 +5,7 @@ using System.Text;
 using System;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using UnityEditor;
 
 public class TraceSaver : MonoBehaviour {
 
@@ -27,10 +28,9 @@ public class TraceSaver : MonoBehaviour {
 		scene = SceneManager.GetActiveScene();
 		filePath = getPath ();
 
-		if (!File.Exists (filePath))
-			File.WriteAllText (filePath, scene.name);
-		else
-			File.AppendAllText (filePath, scene.name);
+		stringBuilder.Append (scene.name);
+		stringBuilder.AppendLine ();
+		stringBuilder.Append (agents.Length);
 		
 	}
 
@@ -54,6 +54,8 @@ public class TraceSaver : MonoBehaviour {
 			File.WriteAllText (filePath, stringBuilder.ToString ());
 		else
 			File.AppendAllText (filePath, stringBuilder.ToString ());
+
+		stringBuilder.Length = 0;
 	}
 
 	// Update is called once per frame
@@ -61,23 +63,29 @@ public class TraceSaver : MonoBehaviour {
 
 		if (enabled) {
 
-			if (Input.GetKeyDown("escape"))
+			if (Input.GetKeyUp("escape"))
 			{
 				SaveTraces ();
 			}
 
-			foreach (GameObject agent in agents) {
+			for (int i = 0; i < agents.Length; i++){
+				var agent = agents [i];
 				if (agent != null) {
 					var agentAI = agent.transform.GetComponent<Agent> ();
 					Vector3 agentGoal = agentAI.GetFinalGoal ();		
-
 					float agentAttentiveness;
-					var attentivenessScript = agent.transform.GetComponent<DistractedAgent> ();
-					if (attentivenessScript != null) {
-						agentAttentiveness = attentivenessScript.getCurrentAttentiveness ();
+					string agentAttentiveState;
+					if (agentAI.GetAgentType () == "Distracted") {				
+						var attentivenessScript = agent.transform.GetComponent<DistractedAgent> ();
+						agentAttentiveness = attentivenessScript.GetCurrentAttentiveness ();
+						agentAttentiveState = attentivenessScript.GetAttentiveState();
+
 					} else {
 						agentAttentiveness = 1.0f;
+						agentAttentiveState = "Paying Attention";
 					}
+					
+
 					//Current save format: Time, AgentPrefabType, PositionX, PositionY, PositionZ, GoalPositionX, GoalPositionY, GoalPositionZ
 					string[] output = new string[] {
 						count.ToString (),
@@ -88,7 +96,8 @@ public class TraceSaver : MonoBehaviour {
 						agentGoal.x.ToString (),
 						agentGoal.y.ToString (),
 						agentGoal.z.ToString (),
-						agentAttentiveness.ToString ()
+						agentAttentiveness.ToString (),
+						agentAttentiveState
 					};
 
 					int length = output.Length;

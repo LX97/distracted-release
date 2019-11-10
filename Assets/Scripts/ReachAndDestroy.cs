@@ -14,36 +14,25 @@ public class ReachAndDestroy : MonoBehaviour {
 	private int countAgentsDestroyed = 0;
 
 	/// <summary>
-	/// The number of agents that the simulation started with
+	/// The sum of all the distances travelled by agents who have reached this goal
 	/// </summary>
-	public int  initialNumberOfAgents;
+	private float sumAgentDistance = 0.0f;
 
 	/// <summary>
-	/// The time for all agents to reach the goal
-	/// </summary>
-	public float simulationCompletionTime;
-
-	/// <summary>
-	/// The flowRate calculated at the end of the simulation
-	/// </summary>
-	public float flowRate;
-
-	/// <summary>
-	/// The agent.
+	/// The agent
 	/// </summary>
 	private UnityEngine.AI.NavMeshAgent agent;   
 
-
-	GameObject[] agents;
+	/// <summary>
+	/// Reference to a distance traveled script object
+	/// </summary>
+	private CalculateDistanceTraveled distanceTraveledScript;
 
 	/// <summary>
 	/// Start this instance.
 	/// </summary>
 	void Start () {
 		//agent = GetComponentInChildren<UnityEngine.AI.NavMeshAgent>();
-
-		agents = GameObject.FindGameObjectsWithTag("Agent");
-		initialNumberOfAgents = agents.Length;
 	}
 
 	/// <summary>
@@ -52,18 +41,28 @@ public class ReachAndDestroy : MonoBehaviour {
 	void OnCollisionEnter(Collision collision)
 	{
 		if (collision.gameObject.tag == "Agent") {
-			GameObject.Destroy (collision.gameObject);
 			countAgentsDestroyed += 1;
+			distanceTraveledScript = collision.gameObject.GetComponent<CalculateDistanceTraveled> ();
+			if (distanceTraveledScript != null) {
+				sumAgentDistance += distanceTraveledScript.GetDistanceTravelled ();
+			}
+			GameObject.Destroy (collision.gameObject);
 		}
 
-		if (countAgentsDestroyed == initialNumberOfAgents) {
-			simulationCompletionTime = Time.fixedUnscaledTime;
-			flowRate = initialNumberOfAgents / simulationCompletionTime;
-		}
 	}
 
+	/// <summary>
+	/// Getter method to retrieve the number of agents who have reached this goal
+	/// </summary>
 	public int GetNumAgentsReachedGoal(){
 		return countAgentsDestroyed;
+	}
+
+	/// <summary>
+	/// Getter method to retrieve the distance travelled by all agents who have reached this goal
+	/// </summary>
+	public float GetTotalAgentDistance(){
+		return sumAgentDistance;
 	}
 
 	/// <summary>

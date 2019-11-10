@@ -44,6 +44,11 @@ public class SimulationMaster : MonoBehaviour {
 	/// </summary>
 	private float flowRate;
 
+	/// <summary>
+	/// The average agent path length
+	/// </summary>
+	private float avgAgentPathLength;
+
 	void Start(){
 		agents = GameObject.FindGameObjectsWithTag("Agent");
 		goals = GameObject.FindGameObjectsWithTag("Goal");
@@ -62,6 +67,10 @@ public class SimulationMaster : MonoBehaviour {
 		return flowRate;
 	}
 
+	public float GetAvgPathLength(){
+		return avgAgentPathLength;
+	}
+
 	public int GetNumInitialAgents(){
 		return initialNumberOfAgents;
 	}
@@ -71,17 +80,24 @@ public class SimulationMaster : MonoBehaviour {
 	}
 
 	void Update(){
-		sumAgentsReachedGoal = 0;
-		for (int i = 0; i < goals.Length; i++) {
-			reachAndDestroyScript = goals [i].GetComponent<ReachAndDestroy> ();
-			sumAgentsReachedGoal += reachAndDestroyScript.GetNumAgentsReachedGoal ();
-		}
-
+		
 		if (simulationFinished == false) {
+			sumAgentsReachedGoal = 0;
+			for (int i = 0; i < goals.Length; i++) {
+				reachAndDestroyScript = goals [i].GetComponent<ReachAndDestroy> ();
+				sumAgentsReachedGoal += reachAndDestroyScript.GetNumAgentsReachedGoal ();
+			}
+
 			if (sumAgentsReachedGoal == initialNumberOfAgents) {
 				simulationFinished = true;
 				simulationCompletionTime = Time.fixedUnscaledTime;
 				flowRate = initialNumberOfAgents / simulationCompletionTime;
+				float sumAgentPathLength = 0.0f;
+				for (int i = 0; i < goals.Length; i++) {
+					reachAndDestroyScript = goals [i].GetComponent<ReachAndDestroy> ();
+					sumAgentPathLength += reachAndDestroyScript.GetTotalAgentDistance ();
+				}
+				avgAgentPathLength = sumAgentPathLength / initialNumberOfAgents;
 			}
 		}
 			
