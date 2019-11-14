@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SimulationMaster : MonoBehaviour {
 
@@ -49,10 +52,78 @@ public class SimulationMaster : MonoBehaviour {
 	/// </summary>
 	private float avgAgentPathLength;
 
+	/// <summary>
+	/// The global average of agent average kinetic energies
+	/// </summary>
+	private float globalAvgAgentAvgKineticEnergy;
+
+	/// <summary>
+	/// The average of agent pleEnergies
+	/// </summary>
+	private float avgAgentEffort;
+
+	/// <summary>
+	/// The number of trials (simulations) to run
+	/// </summary>
+	public int maxTrials;
+
+	/// <summary>
+	/// Ref to trial counter script
+	/// </summary>
+	public CountSimulationTrials trialCounter;
+
+	string filePath;
+	public string experimentName = "Experiment 1";
+	StringBuilder stringBuilder;
+	string header = "Scenario, Experiment Name, Total Agents, # Distracted Agents, Simulation Time, Flow Rate, Average Agent Path Length, Average Agent Kinetic Energy Average, Average Agent Effort";
+	int numDistractedAgents = 0;
+	string delimiter = ",";
+
+	public bool saveData = false;
+	AudioSource audioData;
+
 	void Start(){
 		agents = GameObject.FindGameObjectsWithTag("Agent");
 		goals = GameObject.FindGameObjectsWithTag("Goal");
+		trialCounter = GameObject.FindGameObjectWithTag("TrialCounter").GetComponent<CountSimulationTrials>();
+		trialCounter.SetMaxTrials (maxTrials);
 		initialNumberOfAgents = agents.Length;
+		stringBuilder = new StringBuilder ();
+		filePath = getPath ();
+		audioData = GetComponent<AudioSource>();
+
+
+		// Count the number of distracted agents
+		for (int i = 0; i < agents.Length; i++) {
+			if (agents [i].GetComponent<Agent> ().GetAgentType () == "Distracted") {
+				numDistractedAgents++;
+			}
+		}
+	}
+
+	// Following method is used to retrive the relative path as device platform
+	private string getPath(){
+		string filename = "Simulation Data.csv";
+		#if UNITY_EDITOR
+		return Application.dataPath + "/Data/" + filename ;
+		#elif UNITY_ANDROID
+		return Application.persistentDataPath + filename ;
+		#elif UNITY_IPHONE
+		return Application.persistentDataPath + "/" + filename;
+		#else
+		return Application.dataPath + "/" filename;
+		#endif
+	}
+
+	void SaveStatisticsToDataFile(){
+		Debug.Log ("Saving data");
+		if (!File.Exists (filePath)) {
+			File.WriteAllText (filePath, header);
+			File.AppendAllText (filePath, stringBuilder.ToString ());
+		}else
+			File.AppendAllText (filePath, stringBuilder.ToString ());
+
+		stringBuilder.Length = 0;
 	}
 
 	public bool CheckSimulationComplete(){
@@ -80,7 +151,15 @@ public class SimulationMaster : MonoBehaviour {
 	}
 
 	void Update(){
-		
+
+		if (Input.GetKeyUp("space"))
+		{
+		string sceneName = SceneManager.GetActiveScene ().name;
+		string screenshotName = sceneName + "_" + experimentName + "_" + numDistractedAgents + "-distracted-agents.png";
+		ScreenCapture.CaptureScreenshot(screenshotName);
+		Debug.Log ("Screenshot saved");
+		}
+
 		if (simulationFinished == false) {
 			sumAgentsReachedGoal = 0;
 			for (int i = 0; i < goals.Length; i++) {
@@ -90,14 +169,56 @@ public class SimulationMaster : MonoBehaviour {
 
 			if (sumAgentsReachedGoal == initialNumberOfAgents) {
 				simulationFinished = true;
-				simulationCompletionTime = Time.fixedUnscaledTime;
+				simulationCompletionTime = (Time.fixedUnscaledTime - trialCounter.GetTimeLastReload());
 				flowRate = initialNumberOfAgents / simulationCompletionTime;
 				float sumAgentPathLength = 0.0f;
+				float sumAgentAvgKineticEnergy = 0.0f;
+				float sumAgentEffort = 0.0f;
 				for (int i = 0; i < goals.Length; i++) {
 					reachAndDestroyScript = goals [i].GetComponent<ReachAndDestroy> ();
 					sumAgentPathLength += reachAndDestroyScript.GetTotalAgentDistance ();
+					sumAgentAvgKineticEnergy += reachAndDestroyScript.GetSumAgentAvgKineticEnergy ();
+					sumAgentEffort += reachAndDestroyScript.GetSumAgentEffort ();
 				}
 				avgAgentPathLength = sumAgentPathLength / initialNumberOfAgents;
+				globalAvgAgentAvgKineticEnergy = sumAgentAvgKineticEnergy / initialNumberOfAgents;
+				avgAgentEffort = sumAgentEffort / initialNumberOfAgents;
+
+
+				string sceneName = SceneManager.GetActiveScene ().name;
+				if (saveData) {
+					
+					
+					string[] output = new string[] {
+						sceneName,
+						experimentName,
+						initialNumberOfAgents.ToString (),
+						numDistractedAgents.ToString (),
+						simulationCompletionTime.ToString (),
+						flowRate.ToString (),
+						avgAgentPathLength.ToString (),
+						globalAvgAgentAvgKineticEnergy.ToString(),
+						avgAgentEffort.ToString()
+					};
+					
+					int length = output.Length;
+					stringBuilder.AppendLine ();
+					stringBuilder.Append (output [0]);
+					for (int index = 1; index < length; index++) {
+						stringBuilder.Append (delimiter + output [index]);
+					}
+
+					SaveStatisticsToDataFile ();
+					trialCounter.IncrementTrials ();
+					if (trialCounter.GetNumberOfTrials () < trialCounter.GetMaxTrials ()) {
+						Debug.Log ("Trials finished: " + trialCounter.GetNumberOfTrials ().ToString ());
+						Debug.Log (simulationCompletionTime);
+						trialCounter.SetTimeLevelReloaded (Time.fixedUnscaledTime);
+						SceneManager.LoadScene (sceneName); //Restart scene
+					} else {
+						audioData.Play ();
+					}
+				}
 			}
 		}
 			

@@ -6,16 +6,6 @@ using BehaviorDesigner.Runtime;
 public class DistractedAgent : Agent
 {	
 	/// <summary>
-	/// Agent's min speed while distracted
-	/// </summary>
-	private float minDistractionSpeed;
-
-	/// <summary>
-	/// Agent's max speed while distracted
-	/// </summary>
-	private float maxDistractionSpeed;
-
-	/// <summary>
 	/// Agent's current speed
 	/// </summary>
 	private float currentSpeed;
@@ -25,31 +15,31 @@ public class DistractedAgent : Agent
 	/// </summary>
 	public float ksi = 0.5f;
 
-    /// <summary>
-    /// Distance from waypoint when reached
-    /// </summary>
-    public float sqrWaypointDistance;
+	/// <summary>
+	/// Distance from waypoint when reached
+	/// </summary>
+	public float sqrWaypointDistance;
 
-    /// <summary>
-    /// The current A* path
-    /// </summary>
-    private NavMeshPath path;
+	/// <summary>
+	/// The current A* path
+	/// </summary>
+	private NavMeshPath path;
 
-    /// <summary>
-    /// Rigid body reference
-    /// </summary>
-    private Rigidbody rb;
+	/// <summary>
+	/// Rigid body reference
+	/// </summary>
+	private Rigidbody rb;
 
-    /// <summary>
-    /// Current waypoint index in path corners
-    /// </summary>
-    int waypointIndex;
+	/// <summary>
+	/// Current waypoint index in path corners
+	/// </summary>
+	int waypointIndex;
 
-    /// <summary>
-    /// That current waypoint
+	/// <summary>
+	/// That current waypoint
 	/// May be actual or fuzzy
-    /// </summary>
-    Vector3 currentWaypoint;
+	/// </summary>
+	Vector3 currentWaypoint;
 
 	/// <summary>
 	/// That actual waypoint
@@ -61,20 +51,15 @@ public class DistractedAgent : Agent
 	/// </summary>
 	private Vector3 fuzzyWaypoint;
 
-    /// <summary>
-    /// Elapsed time
-    /// </summary>
-    private float elapsed = 0.0f;
-
-    /// <summary>
-    /// The target transform
-    /// </summary>
-	private Vector3 target;
+	/// <summary>
+	/// Elapsed time
+	/// </summary>
+	private float elapsed = 0.0f;
 
 	/// <summary>
-	/// The direction the agent is currently moving
+	/// The target transform
 	/// </summary>
-	private Vector3 direction;
+	private Vector3 target;
 
 	/// <summary>
 	/// Whether the agent is currently distracted
@@ -85,16 +70,6 @@ public class DistractedAgent : Agent
 	/// The current attentiveness of the agent
 	/// </summary>
 	private float currentAttentiveness = 1.0f;
-
-	/// <summary>
-	/// The time the agent has been distracted
-	/// </summary>
-	private float elapsedTimeDistracted = 0.0f;
-
-	/// <summary>
-	/// The time the agent has been alert
-	/// </summary>
-	private float elapsedTimeAttentive = 0.0f;
 
 	/// <summary>
 	/// The attentiveness level of the agent while distracted.
@@ -109,31 +84,6 @@ public class DistractedAgent : Agent
 	public float deviationFactor = 0.1f;
 
 	/// <summary>
-	/// The minimum amount of time the agent remains distracted
-	/// </summary>
-	public float minDistractionTime = 2.0f;
-
-	/// <summary>
-	/// The maximum amount of time the agent remains distracted
-	/// </summary>
-	public float maxDistractionTime = 5.0f;
-
-	/// <summary>
-	/// The minimum amount of time the agent is attentive before they can become distracted
-	/// </summary>
-	public float minAttentiveTime = 5.0f;
-
-	/// <summary>
-	/// The likelihood an agent becomes distracted each second, expressed as a percentage
-	/// </summary>
-	public float percentChanceBecomeDistracted = 50; 
-
-	/// <summary>
-	/// The likelihood an agent becomes distracted each second, expressed as a decimal between 0 and 1
-	/// </summary>
-	private float distractedChance;
-
-	/// <summary>
 	/// The maxium radius around the current waypoint to choose a fuzzy waypoint from while distracted
 	/// </summary>
 	public float maxFuzzyWaypointRadius = 3.0f;
@@ -142,13 +92,6 @@ public class DistractedAgent : Agent
 	/// The current radius around the current waypoint to choose a fuzzy waypoint from while distracted
 	/// </summary>
 	private float currentFuzzyWaypointRadius;
-
-	/// <summary>
-	/// If this is set, distractedChance is overridden and the agent always becomes distracted
-	/// The agent still pays attention for 1 second when maxDistractionTime is reached, in order to recompute the path
-	/// If this is set, minAttentiveTime will be set to 0 when the simulation starts
-	/// </summary>
-	public bool alwaysDistracted = false;
 
 	/// <summary>
 	/// The type of agent
@@ -175,10 +118,12 @@ public class DistractedAgent : Agent
 	/// </summary>
 	private int deviationDirection = 1;
 
-    /// <summary>
-    /// Starts this instance
-    /// </summary>
-    void Start()
+	Vector3 fuzzyPoint;
+
+	/// <summary>
+	/// Starts this instance
+	/// </summary>
+	void Start()
 	{
 		rb = GetComponent<Rigidbody> ();
 
@@ -190,32 +135,32 @@ public class DistractedAgent : Agent
 		if (rand < 0.1f) {
 			deviationDirection = -1;
 		}
-    }
+	}
 
-    /// <summary>
-    /// Sets the target for the agents and computes the path
-    /// </summary>
-    /// <param name="target"></param>
-    public override void SetTarget(Vector3 targetPosition)
-    {
-        
-        target = targetPosition;
-//        Debug.Log(transform.position);
-//        Debug.Log(target);
-        path = new NavMeshPath();
-        NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
-        if (path.corners.Length > 0)
-        {
-            waypointIndex = 1;
-            currentWaypoint = path.corners[waypointIndex];
-        }
-        else
-        {
-            waypointIndex = 0;
-            currentWaypoint = target;
-        }
-		direction = (currentWaypoint - transform.position);
-    }
+	/// <summary>
+	/// Sets the target for the agents and computes the path
+	/// </summary>
+	/// <param name="target"></param>
+	public override void SetTarget(Vector3 targetPosition)
+	{
+
+		target = targetPosition;
+		//        Debug.Log(transform.position);
+		//        Debug.Log(target);
+		path = new NavMeshPath();
+		NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
+		if (path.corners.Length > 0)
+		{
+			waypointIndex = 1;
+			currentWaypoint = path.corners[waypointIndex];
+		}
+		else
+		{
+			waypointIndex = 0;
+			currentWaypoint = target;
+		}
+		actualWaypoint = currentWaypoint;
+	}
 
 	/// <summary>
 	/// 
@@ -235,16 +180,16 @@ public class DistractedAgent : Agent
 		return target;
 	}
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    public override Vector3 GetCurrentGoal()
-    {
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	public override Vector3 GetCurrentGoal()
+	{
 		// currentWaypoint may be a fuzzy waypoint
-        return currentWaypoint; 
-    }
-	
+		return currentWaypoint; 
+	}
+
 
 	/// <summary>
 	/// 
@@ -253,31 +198,32 @@ public class DistractedAgent : Agent
 	public void MakeWaypointFuzzy()
 	{
 		actualWaypoint = currentWaypoint;
-		currentFuzzyWaypointRadius = Mathf.Clamp ((currentWaypoint - transform.position).magnitude * 0.1f, 0.0f, maxFuzzyWaypointRadius);
-
-		Vector3 forward = (currentWaypoint - transform.position).normalized;
-		Vector3 fuzzyPoint = Quaternion.AngleAxis (Random.Range(0.0f, deviationDirection * 360.0f), Vector3.up) * forward * currentFuzzyWaypointRadius;
-		bool foundNavMeshPosition = false;
+		currentFuzzyWaypointRadius = Mathf.Clamp ((currentWaypoint - transform.position).magnitude * deviationFactor, 0.0f, maxFuzzyWaypointRadius);
+		Vector3 forward = (currentWaypoint - transform.position);
+		fuzzyPoint = (Quaternion.AngleAxis (Random.Range(0.0f, 360.0f), Vector3.up) * forward.normalized * currentFuzzyWaypointRadius) + actualWaypoint;
+		bool foundPosition = false;
 		NavMeshHit hit;
 		for (int i = 0; i < 10; i++) {
 			if (NavMesh.SamplePosition (fuzzyPoint, out hit, 1.0f, NavMesh.AllAreas)) {
-				fuzzyPoint = hit.position;
-				foundNavMeshPosition = true;
-				break;
+				Vector3 direction = transform.position - hit.position;
+				int layerMask = 1 << 8; //only check further collisions with walls, which are on layer 8
+				if (!Physics.Raycast(hit.position, direction, direction.magnitude, layerMask)){
+					fuzzyPoint = hit.position;
+					foundPosition = true;
+					break;
+				}
 			}
 		}
-
-
-		if (foundNavMeshPosition) {
-			currentWaypoint += fuzzyPoint;
-		}// else currentWaypoint doesn't change
+		if (foundPosition) {
+			currentWaypoint = fuzzyPoint;
+		}
 	}
 
 
-    /// <summary>
-    /// Getter method to check if the agent is distracted
-    /// </summary>
-    public bool CheckDistracted(){
+	/// <summary>
+	/// Getter method to check if the agent is distracted
+	/// </summary>
+	public bool CheckDistracted(){
 		return isDistracted;
 	}
 
@@ -303,7 +249,6 @@ public class DistractedAgent : Agent
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
 		currentAttentiveness = 1.0f;
 		agentPAMScript.SetAttentiveness (currentAttentiveness, false);
-		elapsedTimeDistracted = 0.0f;
 		isDistracted = false;
 		SetTarget (target);
 		isDistractedBehaviorTree.SetValue (isDistracted);
@@ -323,6 +268,7 @@ public class DistractedAgent : Agent
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
 		currentAttentiveness = 0.0f;
 		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
+		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		transform.Find ("phoneStopTextSprite").GetComponent<SpriteRenderer> ().enabled = true;
 		attentiveState = "StopText";
@@ -336,9 +282,11 @@ public class DistractedAgent : Agent
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
 		currentAttentiveness = 0.2f; 
 		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
+		agentPAMScript.SetDistractionParameters (0.8f, 48.0f, 1.0f);
+		deviationFactor = 0.1f;
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
-		transform.Find ("phoneTextSprite").GetComponent<SpriteRenderer> ().enabled = true;
+		//transform.Find ("phoneTextSprite").GetComponent<SpriteRenderer> ().enabled = true;
 		attentiveState = "Text";
 	}
 
@@ -350,9 +298,11 @@ public class DistractedAgent : Agent
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
 		currentAttentiveness = 0.2f; 
 		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
+		agentPAMScript.SetDistractionParameters (0.88f, 48.0f, 1.0f);
+		deviationFactor = 0.1f;
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
-		transform.Find ("phoneReadSprite").GetComponent<SpriteRenderer> ().enabled = true;
+		//transform.Find ("phoneReadSprite").GetComponent<SpriteRenderer> ().enabled = true;
 		attentiveState = "Read";
 	}
 
@@ -364,6 +314,8 @@ public class DistractedAgent : Agent
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
 		currentAttentiveness = 0.2f;
 		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
+		agentPAMScript.SetDistractionParameters (0.81f, 48.0f, 1.0f);
+		deviationFactor = 0.1f;
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		transform.Find ("phoneGameSprite").GetComponent<SpriteRenderer> ().enabled = true;
@@ -378,9 +330,10 @@ public class DistractedAgent : Agent
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
 		currentAttentiveness = 0.2f;
 		agentPAMScript.SetAttentiveness (currentAttentiveness, false);
-		MakeWaypointFuzzy ();
+		agentPAMScript.SetDistractionParameters (0.82f, 186.0f, 10.0f);
+		deviationFactor = 0.0f;
 		isDistractedBehaviorTree.SetValue (isDistracted);
-		transform.Find ("phoneRingSprite").GetComponent<SpriteRenderer> ().enabled = true;
+		//transform.Find ("phoneRingSprite").GetComponent<SpriteRenderer> ().enabled = true;
 		attentiveState = "Talk";
 	}
 
@@ -392,6 +345,8 @@ public class DistractedAgent : Agent
 		var agentPAMScript = GetComponent<AgentPredictiveAvoidanceModel> ();
 		currentAttentiveness = 0.2f;
 		agentPAMScript.SetAttentiveness (currentAttentiveness, true);
+		agentPAMScript.SetDistractionParameters (0.75f, 48.0f, 1.0f);
+		deviationFactor = 0.1f;
 		MakeWaypointFuzzy ();
 		isDistractedBehaviorTree.SetValue (isDistracted);
 		transform.Find ("phoneSurfSprite").GetComponent<SpriteRenderer> ().enabled = true;
@@ -406,50 +361,82 @@ public class DistractedAgent : Agent
 	}
 
 
-    /// <summary>
-    /// Physics update
-    /// </summary>
+	/// <summary>
+	/// Physics update
+	/// </summary>
 	void FixedUpdate()
 	{
-		//Debug.DrawLine (transform.position, currentWaypoint, Color.blue);
-        elapsed += Time.deltaTime;
-		if (elapsed > 1.0f) {
-				elapsed -= 1.0f;
-				NavMesh.CalculatePath (transform.position, target, NavMesh.AllAreas, path);
+		//Debug.DrawLine(transform.position,currentWaypoint, Color.blue)
+		Debug.DrawLine (transform.position, currentWaypoint, Color.blue);
 
-			if (!isDistracted) {
+		for (int i = waypointIndex; i < path.corners.Length - 1; i++)
+			Debug.DrawLine(path.corners[i], path.corners[i + 1], Color.red, 1f);
+		
+		Vector3 direction = currentWaypoint - transform.position;
+		int layerMask = 1 << 8; //only check further collisions with walls, which are on layer 8
+		bool shouldMakeWaypointFuzzy = false;
+		if (Physics.Raycast(transform.position, direction, direction.magnitude, layerMask)){
+			NavMesh.CalculatePath (transform.position, target, NavMesh.AllAreas, path);
 				if (path.corners.Length > 0) {
 					waypointIndex = 1;
-					currentWaypoint = path.corners [waypointIndex];
+				currentWaypoint = path.corners [waypointIndex];
 				} else {
 					waypointIndex = 0;
 					currentWaypoint = target;
 				}
+
+		}
+		else
+		{
+			if (path.status == NavMeshPathStatus.PathComplete)
+			{
+
+				if ((currentWaypoint - transform.position).sqrMagnitude < sqrWaypointDistance)
+				{
+					if (waypointIndex + 1 < path.corners.Length)
+					{
+
+						//Only update the waypoint if the agent can see it
+						direction = path.corners [waypointIndex+1] - transform.position;
+						if (currentWaypoint != target && !Physics.Raycast (transform.position, direction, direction.magnitude, layerMask)) {
+							waypointIndex++;
+							currentWaypoint = path.corners [waypointIndex];
+							if (isDistracted) {
+								actualWaypoint = currentWaypoint;
+								MakeWaypointFuzzy ();
+							}
+						} else {
+							NavMesh.CalculatePath (transform.position, target, NavMesh.AllAreas, path);
+							if (path.corners.Length > 0) {
+								waypointIndex = 1;
+								currentWaypoint = path.corners [waypointIndex];
+							} else {
+								waypointIndex = 0;
+								currentWaypoint = target;
+							}
+						}
+					}
+					else
+					{
+						//Only update the waypoint if the agent can see it
+						direction = path.corners [path.corners.Length - 1] - transform.position;
+						if (!Physics.Raycast (transform.position, direction, direction.magnitude, layerMask)) {
+							if (actualWaypoint != target) { // normal case, head to the goal or a fuzzy goal around the goal
+								currentWaypoint = target;
+								actualWaypoint = target;
+								if (isDistracted) {
+									actualWaypoint = currentWaypoint;
+									MakeWaypointFuzzy ();
+								}
+							} else { // we have reached a fuzzy goal around the goal, head to the actual goal with no fuzziness.
+								currentWaypoint = target;
+								waypointIndex = 0;
+							}
+						}
+					}
+				}
 			}
 		}
-        else
-        {
-            if (path.status == NavMeshPathStatus.PathComplete)
-            {
-
-                if ((currentWaypoint - transform.position).sqrMagnitude < sqrWaypointDistance)
-                {
-                    if (waypointIndex + 1 < path.corners.Length)
-                    {
-                        waypointIndex++;
-                        currentWaypoint = path.corners[waypointIndex];
-                    }
-                    else
-                    {
-                        waypointIndex = 0;
-                        currentWaypoint = target;
-                    }
-					if (isDistracted) {
-						MakeWaypointFuzzy ();
-					}
-                }
-            }
-        }
 
 	}
 }

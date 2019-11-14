@@ -104,7 +104,6 @@ public class TraceReader : MonoBehaviour {
 						sprite.enabled = true;
 					} else if (data [1] == "Distracted") { // and attentiveness is 1.0f
 						agentList [agentCount].Find ("Graphics").GetComponent<Renderer> ().material = attentiveMat;
-
 					}
 					agentList [agentCount].transform.position = position;
 				}

@@ -19,6 +19,16 @@ public class ReachAndDestroy : MonoBehaviour {
 	private float sumAgentDistance = 0.0f;
 
 	/// <summary>
+	/// The sum of all the average kinetic energies of agents who have reached this goal
+	/// </summary>
+	private float sumAgentAvgKineticEnergy = 0.0f;
+
+	/// <summary>
+	/// The sum of all the pleEnergies of agents who have reached this goal
+	/// </summary>
+	private float sumAgentEffort = 0.0f;
+
+	/// <summary>
 	/// The agent
 	/// </summary>
 	private UnityEngine.AI.NavMeshAgent agent;   
@@ -26,7 +36,7 @@ public class ReachAndDestroy : MonoBehaviour {
 	/// <summary>
 	/// Reference to a distance traveled script object
 	/// </summary>
-	private CalculateDistanceTraveled distanceTraveledScript;
+	private CalculateAgentMetrics agentMetricsScript;
 
 	/// <summary>
 	/// Start this instance.
@@ -38,15 +48,24 @@ public class ReachAndDestroy : MonoBehaviour {
 	/// <summary>
 	/// Update when an agent enters collider.
 	/// </summary>
-	void OnCollisionEnter(Collision collision)
+	void OnTriggerEnter(Collider collision)
 	{
+		
 		if (collision.gameObject.tag == "Agent") {
 			countAgentsDestroyed += 1;
-			distanceTraveledScript = collision.gameObject.GetComponent<CalculateDistanceTraveled> ();
-			if (distanceTraveledScript != null) {
-				sumAgentDistance += distanceTraveledScript.GetDistanceTravelled ();
+			agentMetricsScript = collision.gameObject.GetComponent<CalculateAgentMetrics> ();
+			if (agentMetricsScript != null) {
+				sumAgentDistance += agentMetricsScript.GetDistanceTravelled ();
+				float agentAvgMomentum = agentMetricsScript.GetDistanceTravelled () / agentMetricsScript.GetTimeEnabled ();
+				float agentAvgKineticEnergy = 0.5f * agentMetricsScript.GetIntegralOfKineticEnergy () / agentMetricsScript.GetTimeEnabled ();
+				sumAgentAvgKineticEnergy += agentAvgKineticEnergy;
+				sumAgentEffort += agentMetricsScript.GetEffort ();
 			}
-			GameObject.Destroy (collision.gameObject);
+
+			//collision.gameObject.GetComponent<AgentPredictiveAvoidanceModel> ().enabled = false;
+			//collision.gameObject.GetComponentInChildren<CapsuleCollider> ().enabled = false;
+			//collision.gameObject.GetComponentInChildren<MeshRenderer> ().enabled = false;
+			//GameObject.Destroy (collision.gameObject);
 		}
 
 	}
@@ -63,6 +82,20 @@ public class ReachAndDestroy : MonoBehaviour {
 	/// </summary>
 	public float GetTotalAgentDistance(){
 		return sumAgentDistance;
+	}
+
+	/// <summary>
+	/// Getter method to retrieve the sum of kinetic energy of all agents who have reached this goal
+	/// </summary>
+	public float GetSumAgentAvgKineticEnergy(){
+		return sumAgentAvgKineticEnergy;
+	}
+
+	/// <summary>
+	/// Getter method to retrieve the sum of pleEnergies of all agents who have reached this goal
+	/// </summary>
+	public float GetSumAgentEffort(){
+		return sumAgentEffort;
 	}
 
 	/// <summary>

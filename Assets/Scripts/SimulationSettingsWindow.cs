@@ -184,6 +184,8 @@ class SimulationSettingsWindow : EditorWindow {
 			agent.transform.SetParent (editorCrowdsObj.transform);
 			setTargetScript = agent.GetComponent<SetTargetOnLoad> ();
 			setTargetScript.enabled = true;
+			//GameObject circle = GameObject.FindGameObjectWithTag ("CircularSpawnRegion");
+			//setTargetScript.target = (circle.transform.position - agent.transform.position).normalized * 5.0f;
 			setTargetScript.target = target.position;
 		}
 		//Generate distracted agents

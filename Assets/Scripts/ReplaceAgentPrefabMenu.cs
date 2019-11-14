@@ -22,6 +22,7 @@ public class ReplaceAgentPrefabMenu : Editor {
 				menu.ShowAsContext();
 			}
 		}
+
 	}
 
 	static void ReplaceAgent (object obj) {

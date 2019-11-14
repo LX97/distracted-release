@@ -31,7 +31,6 @@ public class CrowdGeneratorStandard: MonoBehaviour {
 	public Transform target;
 
 
-	
 	/// <summary>
 	/// Initialize this instance. Use Awake() instead of Start() to ensure agents are generated before other scripts need them.
 	/// </summary>
