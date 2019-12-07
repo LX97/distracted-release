@@ -5,6 +5,16 @@ TagManager:
   serializedVersion: 2
   tags:
   - Agent
+  - TrafficLight1
+  - TrafficLight2
+  - East
+  - South
+  - West
+  - North
+  - NorthCenter
+  - WestCenter
+  - SouthCenter
+  - EastCenter
   layers:
   - Default
   - TransparentFX
