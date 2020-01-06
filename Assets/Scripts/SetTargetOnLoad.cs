@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SetTargetOnLoad : MonoBehaviour {
+public class SetTargetOnLoad : MonoBehaviour
+{
 
 	// This script sets the agent's target on load. If enabled it will allow the target of an agent to be specified before runtime,
 	// so that it can be set from editor scripts or through the inspector before playing the scene
@@ -13,7 +14,8 @@ public class SetTargetOnLoad : MonoBehaviour {
 	public Vector3 target;
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
 		var agentAI = this.transform.GetComponent<Agent> ();
 
 		if (agentAI.GetAgentType() == "Normative") {

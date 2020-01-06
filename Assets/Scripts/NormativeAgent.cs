@@ -2,6 +2,9 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+/// <summary>
+/// Normative agent type
+/// </summary>
 public class NormativeAgent : Agent
 {	
     /// <summary>
@@ -61,8 +64,6 @@ public class NormativeAgent : Agent
     {
         
         target = targetPosition;
-//        Debug.Log(transform.position);
-//        Debug.Log(target);
         path = new NavMeshPath();
         NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
         if (path.corners.Length > 0)
@@ -77,34 +78,32 @@ public class NormativeAgent : Agent
         }
     }
 
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <returns></returns>
-	public override string GetAgentType()
+    /// <summary>
+    /// Get the agent type
+    /// </summary>
+    /// <returns>string agent type</returns>
+    public override string GetAgentType()
 	{
 		return typeOfAgent;
 	}
 
     /// <summary>
-    /// 
+    /// Get the current goals
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Vector3 current waypoint in world position</returns>
     public override Vector3 GetCurrentGoal()
     {
         return currentWaypoint;
     }
 
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <returns></returns>
-	public override Vector3 GetFinalGoal()
+    /// <summary>
+    /// get the current final goal
+    /// </summary>
+    /// <returns>Vector3 final goal world position</returns>
+    public override Vector3 GetFinalGoal()
 	{
 		return target;
 	}
-
-
 
     /// <summary>
     /// Physics update
@@ -131,16 +130,11 @@ public class NormativeAgent : Agent
                 currentWaypoint = target;
             }
 
-            // Update the way to the goal every second.
-            //for (int i = 0; i < path.corners.Length - 1; i++)
-            //    Debug.DrawLine(path.corners[i], path.corners[i + 1], Color.red, 1f);
         }
         else
         {
             if (path.status == NavMeshPathStatus.PathComplete)
             {
-                //Debug.DrawLine(transform.position, currentWaypoint, Color.green, 0.02f);
-
                 if ((currentWaypoint - transform.position).sqrMagnitude < sqrWaypointDistance)
                 {
                     if (waypointIndex + 1 < path.corners.Length)

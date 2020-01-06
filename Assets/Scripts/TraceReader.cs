@@ -5,7 +5,9 @@ using System.IO;
 using UnityEngine.SceneManagement;
 using UnityEditor;
 
-
+/// <summary>
+/// Agent trace reader tool
+/// </summary>
 public class TraceReader : MonoBehaviour {
 
 	/// <summary>
@@ -23,13 +25,44 @@ public class TraceReader : MonoBehaviour {
 	/// </summary>
 	private GameObject distractedAgentPrefab;
 
+    /// <summary>
+    /// Agent transform list
+    /// </summary>
 	List<Transform> agentList;
+
+    /// <summary>
+    /// Lines list
+    /// </summary>
 	private string[] lines;
+
+    /// <summary>
+    /// Frame count
+    /// </summary>
 	private int count = 0;
+
+    /// <summary>
+    /// Number of frames
+    /// </summary>
 	private int numFrames = 0;
+
+    /// <summary>
+    /// Current frame id
+    /// </summary>
 	private int currentFrame = 0;
+
+    /// <summary>
+    /// Skip header value
+    /// </summary>
 	private int lineAgentDataBegins = 2;
+
+    /// <summary>
+    /// Initial number of agents
+    /// </summary>
 	private int initialNumberOfAgents;
+
+    /// <summary>
+    /// Is enabled?
+    /// </summary>
 	private bool enabled = true;
 
 	[SerializeField]
@@ -37,7 +70,9 @@ public class TraceReader : MonoBehaviour {
 	[SerializeField]
 	private Material distractedMat;
 
-	// Use this for initialization
+	/// <summary>
+    /// Start this instance
+    /// </summary>
 	void Start () {
 
 		var crowdGenerators = GameObject.FindGameObjectsWithTag("Runtime Crowd Generator");
@@ -83,7 +118,9 @@ public class TraceReader : MonoBehaviour {
 		}
 	}
 	
-	// Update is called once per frame
+	/// <summary>
+    /// Physics update
+    /// </summary>
 	void FixedUpdate () {
 		if (enabled) {
 			count++;

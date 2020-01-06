@@ -7,20 +7,49 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEditor;
 
-public class TraceSaver : MonoBehaviour {
-
+/// <summary>
+/// Agent trace saving tool
+/// </summary>
+public class TraceSaver : MonoBehaviour
+{
+    /// <summary>
+    /// Data
+    /// </summary>
 	private List<string[]> rowData = new List<string[]>();
+
+    /// <summary>
+    /// Trace file path
+    /// </summary>
 	string filePath;
+
+    /// <summary>
+    /// Trace data delimiter
+    /// </summary>
 	string delimiter = ",";
 
+    /// <summary>
+    /// Array of agent objects
+    /// </summary>
 	GameObject[] agents;
 
+    /// <summary>
+    /// Count
+    /// </summary>
 	int count = 0;
 
+    /// <summary>
+    /// Scene reference
+    /// </summary>
 	Scene scene;
+
+    /// <summary>
+    /// String builder reference
+    /// </summary>
 	StringBuilder stringBuilder;
 
-	// Use this for initialization
+	/// <summary>
+    /// Start this instance
+    /// </summary>
 	void Start () {
 
 		stringBuilder = new StringBuilder ();
@@ -34,8 +63,11 @@ public class TraceSaver : MonoBehaviour {
 		
 	}
 
-	// Following method is used to retrive the relative path as device platform
-	private string getPath(){
+    /// <summary>
+    /// retrive the relative path as device platform
+    /// </summary>
+    /// <returns>string path</returns>
+    private string getPath(){
 		string filename = scene.name + "_" + DateTime.Now.ToString ("yyyy-mm-dd-hh-mm-ss") + ".csv";
 		#if UNITY_EDITOR
 		return Application.dataPath + "/Traces/" + filename ;
@@ -48,6 +80,9 @@ public class TraceSaver : MonoBehaviour {
 		#endif
 	}
 
+    /// <summary>
+    /// Save traces to file
+    /// </summary>
 	void SaveTraces(){
 		Debug.Log ("Saving traces");
 		if (!File.Exists (filePath))
@@ -58,7 +93,9 @@ public class TraceSaver : MonoBehaviour {
 		stringBuilder.Length = 0;
 	}
 
-	// Update is called once per frame
+	/// <summary>
+    /// Update this instance, once per frame
+    /// </summary>
 	void FixedUpdate () {
 
 		if (enabled) {

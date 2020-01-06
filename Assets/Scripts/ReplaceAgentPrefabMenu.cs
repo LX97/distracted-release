@@ -2,15 +2,18 @@
 using System.Collections;
 using UnityEditor;
 
-[InitializeOnLoad]
-public class ReplaceAgentPrefabMenu : Editor {
+//[InitializeOnLoad]
+public class ReplaceAgentPrefabMenu : Editor
+{
 
-	static ReplaceAgentPrefabMenu () {
+	static ReplaceAgentPrefabMenu ()
+    {
 		SceneView.onSceneGUIDelegate += OnSceneGUI;
 	}
 
 
-	static void OnSceneGUI (SceneView sceneview) {
+	static void OnSceneGUI (SceneView sceneview)
+    {
 		
 		if (Event.current.button == 1)
 		{
@@ -25,7 +28,8 @@ public class ReplaceAgentPrefabMenu : Editor {
 
 	}
 
-	static void ReplaceAgent (object obj) {
+	static void ReplaceAgent (object obj)
+    {
 		GameObject selectedObj = Selection.activeGameObject;
 
 

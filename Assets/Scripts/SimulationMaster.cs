@@ -5,6 +5,9 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// The simulation controller
+/// </summary>
 public class SimulationMaster : MonoBehaviour {
 
 	/// <summary>
@@ -72,17 +75,51 @@ public class SimulationMaster : MonoBehaviour {
 	/// </summary>
 	public CountSimulationTrials trialCounter;
 
+    /// <summary>
+    /// Experiment file path
+    /// </summary>
 	string filePath;
+
+    /// <summary>
+    /// The experiment name
+    /// </summary>
 	public string experimentName = "Experiment 1";
+
+    /// <summary>
+    /// String builder ref
+    /// </summary>
 	StringBuilder stringBuilder;
+
+    /// <summary>
+    /// Experiment data file header
+    /// </summary>
 	string header = "Scenario, Experiment Name, Total Agents, # Distracted Agents, Simulation Time, Flow Rate, Average Agent Path Length, Average Agent Kinetic Energy Average, Average Agent Effort";
-	int numDistractedAgents = 0;
+
+    /// <summary>
+    /// The number of distracted agents
+    /// </summary>
+    int numDistractedAgents = 0;
+
+    /// <summary>
+    /// Field delimiter for experiment data
+    /// </summary>
 	string delimiter = ",";
 
+    /// <summary>
+    /// Save collected data flag
+    /// </summary>
 	public bool saveData = false;
+
+    /// <summary>
+    /// Audio ref
+    /// </summary>
 	AudioSource audioData;
 
-	void Start(){
+    /// <summary>
+    /// Start this instance
+    /// </summary>
+	void Start()
+    {
 		agents = GameObject.FindGameObjectsWithTag("Agent");
 		goals = GameObject.FindGameObjectsWithTag("Goal");
 		trialCounter = GameObject.FindGameObjectWithTag("TrialCounter").GetComponent<CountSimulationTrials>();
@@ -101,8 +138,12 @@ public class SimulationMaster : MonoBehaviour {
 		}
 	}
 
-	// Following method is used to retrive the relative path as device platform
-	private string getPath(){
+    /// <summary>
+    /// Used to retrive the relative path as device platform
+    /// </summary>
+    /// <returns></returns>
+    private string getPath()
+    {
 		string filename = "Simulation Data.csv";
 		#if UNITY_EDITOR
 		return Application.dataPath + "/Data/" + filename ;
@@ -115,7 +156,11 @@ public class SimulationMaster : MonoBehaviour {
 		#endif
 	}
 
-	void SaveStatisticsToDataFile(){
+    /// <summary>
+    /// Save the stats out to the experiment data file
+    /// </summary>
+	void SaveStatisticsToDataFile()
+    {
 		Debug.Log ("Saving data");
 		if (!File.Exists (filePath)) {
 			File.WriteAllText (filePath, header);
@@ -126,38 +171,70 @@ public class SimulationMaster : MonoBehaviour {
 		stringBuilder.Length = 0;
 	}
 
-	public bool CheckSimulationComplete(){
+    /// <summary>
+    /// Is simulation complete?
+    /// </summary>
+    /// <returns>bool complete</returns>
+	public bool CheckSimulationComplete()
+    {
 		return simulationFinished;
 	}
 
-	public float GetSimulationCompletionTime(){
+    /// <summary>
+    /// Get simulation completion time
+    /// </summary>
+    /// <returns>float simulation completion time</returns>
+	public float GetSimulationCompletionTime()
+    {
 		return simulationCompletionTime;
 	}
 
-	public float GetFlowRate(){
+    /// <summary>
+    /// Get the flow rate
+    /// </summary>
+    /// <returns>float flow rate</returns>
+	public float GetFlowRate()
+    {
 		return flowRate;
 	}
 
-	public float GetAvgPathLength(){
+    /// <summary>
+    /// Get the average path length
+    /// </summary>
+    /// <returns>float average path length</returns>
+	public float GetAvgPathLength()
+    {
 		return avgAgentPathLength;
 	}
 
-	public int GetNumInitialAgents(){
+    /// <summary>
+    /// Get the number of agents intially
+    /// </summary>
+    /// <returns>int initial agent count</returns>
+	public int GetNumInitialAgents()
+    {
 		return initialNumberOfAgents;
 	}
 
-	public int GetNumAgentsReachedGoal(){
+    /// <summary>
+    /// Get the nuber of agents that reached their goals
+    /// </summary>
+    /// <returns>int total goal completion</returns>
+	public int GetNumAgentsReachedGoal()
+    {
 		return sumAgentsReachedGoal;
 	}
 
-	void Update(){
-
-		if (Input.GetKeyUp("space"))
-		{
-		string sceneName = SceneManager.GetActiveScene ().name;
-		string screenshotName = sceneName + "_" + experimentName + "_" + numDistractedAgents + "-distracted-agents.png";
-		ScreenCapture.CaptureScreenshot(screenshotName);
-		Debug.Log ("Screenshot saved");
+    /// <summary>
+    /// Update this instance
+    /// </summary>
+	void Update()
+    {
+		if (Input.GetKeyUp("space")){
+		    string sceneName = SceneManager.GetActiveScene ().name;
+		    string screenshotName = sceneName + "_" + experimentName + "_" + numDistractedAgents + "-distracted-agents.png";
+		    ScreenCapture.CaptureScreenshot(screenshotName);
+		    Debug.Log ("Screenshot saved");
 		}
 
 		if (simulationFinished == false) {

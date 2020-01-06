@@ -2,6 +2,9 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.AI;
 
+/// <summary>
+/// Crowd generator tool
+/// </summary>
 public class CrowdGeneratorStandard: MonoBehaviour {
 	/// <summary>
 	/// The agent prefab.

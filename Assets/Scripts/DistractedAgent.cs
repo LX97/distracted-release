@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.AI;
 using BehaviorDesigner.Runtime;
 
+/// <summary>
+/// Distracted Agent type
+/// </summary>
 public class DistractedAgent : Agent
 {	
 	/// <summary>
@@ -118,6 +121,9 @@ public class DistractedAgent : Agent
 	/// </summary>
 	private int deviationDirection = 1;
 
+    /// <summary>
+    /// The current fuzzy waypoint
+    /// </summary>
 	Vector3 fuzzyPoint;
 
 	/// <summary>
@@ -145,8 +151,6 @@ public class DistractedAgent : Agent
 	{
 
 		target = targetPosition;
-		//        Debug.Log(transform.position);
-		//        Debug.Log(target);
 		path = new NavMeshPath();
 		NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
 		if (path.corners.Length > 0)
@@ -163,38 +167,47 @@ public class DistractedAgent : Agent
 	}
 
 	/// <summary>
-	/// 
+	/// Get the agent type
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>string agent type</returns>
 	public override string GetAgentType()
 	{
 		return typeOfAgent;
 	}
 
 	/// <summary>
-	/// 
+	/// get the current final goal
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>Vector3 final goal world position</returns>
 	public override Vector3 GetFinalGoal()
 	{
 		return target;
 	}
 
 	/// <summary>
-	/// 
+	/// Get the current goals
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>Vector3 current waypoint in world position</returns>
 	public override Vector3 GetCurrentGoal()
 	{
 		// currentWaypoint may be a fuzzy waypoint
-		return currentWaypoint; 
-	}
+		return currentWaypoint;
+    }
 
 
-	/// <summary>
-	/// 
+    /// <summary>
+    /// Make a fuzzy waypoint. Initializes a random position around the actual waypoint
+    /// from the A* longterm path in a safe way:
+    /// 1. Choose a random point in within the circle defiend by actual waypoint and fuzzy radius
+    /// 2. Now use NavMesh.SamplePosition
+    ///     a. Note that this function tries to find the closest point on the navmesh that is closest to the point from(1)
+    ///     b. This is *not* part of the randomness, it is to ensure that the point you just selected is navigable, not just floating in space.
+    ///     c. It will return the closest point, which adds to the randomness if the point you generated in (1) was not navigable
+    ///     d. If you dont get a hit at all then(1) has failed poorly, go back to(1)
+    /// 3. Now do a raycast from the point you got in (2) to the original waypoint
+    ///     a. If this is blocked by a wall you;ll get a wall collider hit, and you can check its tag
+    ///     b. If it hits a wall that means the point from (2) is in a different area or concavity, go back to (1)
 	/// </summary>
-	/// <returns></returns>
 	public void MakeWaypointFuzzy()
 	{
 		actualWaypoint = currentWaypoint;
@@ -365,16 +378,10 @@ public class DistractedAgent : Agent
 	/// Physics update
 	/// </summary>
 	void FixedUpdate()
-	{
-		//Debug.DrawLine(transform.position,currentWaypoint, Color.blue)
-		Debug.DrawLine (transform.position, currentWaypoint, Color.blue);
-
-		for (int i = waypointIndex; i < path.corners.Length - 1; i++)
-			Debug.DrawLine(path.corners[i], path.corners[i + 1], Color.red, 1f);
-		
+	{	
 		Vector3 direction = currentWaypoint - transform.position;
 		int layerMask = 1 << 8; //only check further collisions with walls, which are on layer 8
-		bool shouldMakeWaypointFuzzy = false;
+
 		if (Physics.Raycast(transform.position, direction, direction.magnitude, layerMask)){
 			NavMesh.CalculatePath (transform.position, target, NavMesh.AllAreas, path);
 				if (path.corners.Length > 0) {

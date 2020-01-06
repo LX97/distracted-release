@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Reach and destroy tool for getting rid of finished agents
+/// </summary>
 public class ReachAndDestroy : MonoBehaviour {
 	/// <summary>
 	/// The reached destination distance.
@@ -41,7 +44,8 @@ public class ReachAndDestroy : MonoBehaviour {
 	/// <summary>
 	/// Start this instance.
 	/// </summary>
-	void Start () {
+	void Start ()
+    {
 		//agent = GetComponentInChildren<UnityEngine.AI.NavMeshAgent>();
 	}
 
@@ -73,35 +77,40 @@ public class ReachAndDestroy : MonoBehaviour {
 	/// <summary>
 	/// Getter method to retrieve the number of agents who have reached this goal
 	/// </summary>
-	public int GetNumAgentsReachedGoal(){
+	public int GetNumAgentsReachedGoal()
+    {
 		return countAgentsDestroyed;
 	}
 
 	/// <summary>
 	/// Getter method to retrieve the distance travelled by all agents who have reached this goal
 	/// </summary>
-	public float GetTotalAgentDistance(){
+	public float GetTotalAgentDistance()
+    {
 		return sumAgentDistance;
 	}
 
 	/// <summary>
 	/// Getter method to retrieve the sum of kinetic energy of all agents who have reached this goal
 	/// </summary>
-	public float GetSumAgentAvgKineticEnergy(){
+	public float GetSumAgentAvgKineticEnergy()
+    {
 		return sumAgentAvgKineticEnergy;
 	}
 
 	/// <summary>
 	/// Getter method to retrieve the sum of pleEnergies of all agents who have reached this goal
 	/// </summary>
-	public float GetSumAgentEffort(){
+	public float GetSumAgentEffort()
+    {
 		return sumAgentEffort;
 	}
 
 	/// <summary>
 	/// Update this instance.
 	/// </summary>
-	void Update () {
+	void Update ()
+    {
 		//if(Vector3.SqrMagnitude(transform.position - agent.destination) < reachedDestinationDistanceSquared)
 		//	GameObject.Destroy(transform.gameObject);
 	}

@@ -4,25 +4,9 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Agent
-<<<<<<< HEAD
-  - TrafficLight1
-  - TrafficLight2
-  - East
-  - South
-  - West
-  - North
-  - NorthCenter
-  - WestCenter
-  - SouthCenter
-  - EastCenter
-=======
   - Goal
-  - Runtime Crowd Generator
-  - Editor Crowd Generator
-  - TrialCounter
-  - CircularSpawnRegion
->>>>>>> a4957aad893a54ad479f68e607aa75109f530237
+  - Agent
+  - TrafficLight1
   layers:
   - Default
   - TransparentFX
@@ -32,7 +16,7 @@ TagManager:
   - UI
   - 
   - 
-  - Walls
+  - 
   - 
   - 
   - 

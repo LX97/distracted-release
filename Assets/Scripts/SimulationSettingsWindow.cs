@@ -3,6 +3,9 @@ using UnityEditor;
 using UnityEngine.AI;
 using System.Collections;
 
+/// <summary>
+/// Simulations setting GUI
+/// </summary>
 class SimulationSettingsWindow : EditorWindow {
 
 	/// <summary>
@@ -79,16 +82,25 @@ class SimulationSettingsWindow : EditorWindow {
 
 	[MenuItem ("Tools/Simulation Settings")]
 
+    /// <summary>
+	/// Show the window
+	/// </summary>
 	public static void  ShowWindow () {
 		EditorWindow.GetWindow(typeof(SimulationSettingsWindow));
 	}
 
+    /// <summary>
+    /// Awaken this instance
+    /// </summary>
 	void Awake(){
 		normativeAgentPrefab = (GameObject) AssetDatabase.LoadAssetAtPath<Object>("Assets/Prefabs/NormativeAgent.prefab");
 		distractedAgentPrefab = (GameObject) AssetDatabase.LoadAssetAtPath<Object>("Assets/Prefabs/DistractedAgent.prefab");
 		editorCrowdsObj = GameObject.FindGameObjectWithTag ("Editor Crowd Generator");
 	}
 
+    /// <summary>
+    /// ONGUI function for drawing GUI functionally
+    /// </summary>
 	void OnGUI () {
 
 		GUILayout.Label("Global Simulation Settings", EditorStyles.boldLabel);
@@ -137,6 +149,9 @@ class SimulationSettingsWindow : EditorWindow {
 		}
 	}
 
+    /// <summary>
+    /// Generate the agents from traces
+    /// </summary>
 	void GenerateAgentsFromTrace(){
 		Vector3 position;
 		Vector3 goalPosition;
@@ -172,6 +187,9 @@ class SimulationSettingsWindow : EditorWindow {
 
 	}
 
+    /// <summary>
+    /// Generate random agents
+    /// </summary>
 	void GenerateRandomAgents(){
 		Vector3 newPlacement = Vector3.zero;
 		GameObject agent;
@@ -201,6 +219,11 @@ class SimulationSettingsWindow : EditorWindow {
 
 	}
 
+    /// <summary>
+    /// Find a free location
+    /// </summary>
+    /// <param name="agentPrefab">agent prefab to test</param>
+    /// <returns></returns>
 	Vector3 FindFreeLocation(GameObject agentPrefab){
 		bool foundNavMeshPosition = false;
 		bool freePlacement = false;

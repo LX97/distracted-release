@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Agent))]
+
+/// <summary>
+/// Unity C# implementation of the Predictive Avoidance Model (PAM)
+/// originally in C++ by Ioannis Karamouzas et. al.
+/// </summary>
 public class AgentPredictiveAvoidanceModel : MonoBehaviour
 {
 	/// <summary>
@@ -16,99 +21,99 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
 	public float agentRadius = 0.5f;
 
 	/// <summary>
-	/// 
+	/// Minimum agent distance parameter
 	/// </summary>
 	public float minAgentDistance = 0.1f;
 
 	/// <summary>
-	/// the mid distance parameters in peicewise personal space fnction predictive force dist
+	/// the mid distance parameters in peicewise personal space function predictive force dist
 	/// </summary>
 	public float dmid = 4.0f;
 
 	/// <summary>
-	/// 
+	/// KSI parameter  
 	/// </summary>
 	public float ksi = 0.5f;
 
 	/// <summary>
-	/// 
+	/// Nearest Neighbour distance
 	/// </summary>
 	public float neighborDist = 10.0f;
 
 	/// <summary>
-	/// 
+	/// Maximum neighbours to consider
 	/// </summary>
 	public float maxNeighbors = 3;
 
-	/// <summary>
-	/// 
-	/// </summary>
-	public float maxAccel = 20.0f;
+    /// <summary>
+    /// Maximum acceleration Parameter
+    /// </summary>
+    public float maxAccel = 20.0f;
+
+    /// <summary> 
+    /// Maximum speed Parameter
+    /// </summary>
+    public float maxSpeed = 2.0f;
+
+    /// <summary>
+    /// Preferred Speed Parameter
+    /// </summary>
+    public float preferredSpeed = 1.3f;
 
 	/// <summary>
-	/// 
-	/// </summary>
-	public float maxSpeed = 2.0f;
-
-	/// <summary>
-	/// 
-	/// </summary>
-	public float preferredSpeed = 1.3f;
-
-	/// <summary>
-	/// 
+	/// Agent particle Radius
 	/// </summary>
 	public float radius = 0.5f;
 
 	/// <summary>
-	/// 
+	/// Goal acquired radius
 	/// </summary>
 	public float goalRadius = 1.0f;
 
-	/// <summary>
-	/// 
-	/// </summary>
-	public float timeHorizon = 4.0f;
+    /// <summary>
+    /// Time Horizon Parameter
+    /// </summary>
+    public float timeHorizon = 4.0f;
 
 	/// <summary>
-	/// 
+	/// Agent Distance Parameter
 	/// </summary>
 	public float agentDistance = .1f;
 
-	/// <summary>
-	/// 
-	/// </summary>
-	public float wallDistance = .1f;
+    /// <summary>
+    /// Wall Distance Parameter
+    /// </summary>
+    public float wallDistance = .1f;
+
+    /// <summary>
+    /// Wall Steepnes Parameter
+    /// </summary>
+    public float wallSteepness = 2.0f;
+
+    /// <summary>
+    /// Agent Strength Parameter
+    /// </summary>
+    public float agentStrength = 1.0f;
+
+    /// <summary>
+    /// wFactor Parameter
+    /// </summary>
+    public float wFactor = .8f;
 
 	/// <summary>
-	/// 
-	/// </summary>
-	public float wallSteepness = 2.0f;
-
-	/// <summary>
-	/// 
-	/// </summary>
-	public float agentStrength = 1.0f;
-
-	/// <summary>
-	/// 
-	/// </summary>
-	public float wFactor = .8f;
-
-	/// <summary>
-	/// 
+	/// Noise flag (should noise be added to the movement action)
 	/// </summary>
 	public bool noise = false;
 
 	/// <summary>
-	/// the min distance parameters in peicewise personal space fnction
+	/// the min distance parameters in peicewise personal space function
 	/// </summary>
 	private float dmin;
 
-	/// <summary>
-	/// 
-	/// </summary>
-	private float dmax;
+    /// <summary>
+    /// the max distance parameters in peicewise personal space function
+    /// </summary>
+    private float dmax;
 
 	/// <summary>
 	/// Agent Personal space
@@ -116,25 +121,24 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
 	private float agentPersonalSpace;
 
 	/// <summary>
-	/// 
+	/// FOV cosine
 	/// </summary>
 	private float _cosFov;
 
 	/// <summary>
-	/// 
+	/// self reference
 	/// </summary>
 	private Agent agentSelf;
 
 	/// <summary>
-	/// 
+	/// Array of current neighbours
 	/// </summary>
 	private GameObject[] neighbor_agents;
 
 	/// <summary>
-	/// 
+	/// Rigibody reference
 	/// </summary>
 	private Rigidbody rb;
-
 
 	/// <summary>
 	/// The agent's attentiveness, always 1 unless changed when an agent becomes distracted
@@ -162,7 +166,7 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
 	private float preferredSpeedScale;
 
 	/// <summary>
-	/// Start insstance
+	/// Start instance
 	/// </summary>
 	void Start()
 	{
@@ -328,29 +332,15 @@ public class AgentPredictiveAvoidanceModel : MonoBehaviour
 			}
 			forceMagnitude *=  Mathf.Pow((collision_ ? 1.0f : wFactor), count++);
 			drivingForce += forceMagnitude * forceDirection;
-
-			//Debug.DrawLine(transform.position, transform.position + drivingForce, Color.green, 0.02f);
-
-			/// MELISSA, See HERE
-			//ShowGoldenPath_Distraction distractionScript = GetComponent<ShowGoldenPath_Distraction>();
-			//if (distractionScript == null || distractionScript.checkDistracted() == false){
-			//	rb.AddForce(1000f*mag/2f * force_);
-			//}        
 		}
 
-		// Add noise ofr deadlocks
+		// Add noise for reducing deadlocks adding naturalness
 		if (noise)
 		{
 			float angle = Random.value * 2.0f * Mathf.PI;
 			float dist = Random.value * 0.001f;
 			drivingForce += dist * new Vector3(Mathf.Cos(angle), Mathf.Sin(angle));
-
-			// For debugging, only randomForce is redundant here
-			//Vector3 randomForce = dist * new Vector3(Mathf.Cos(angle), Mathf.Sin(angle));
-			//Debug.DrawLine(transform.position, transform.position + randomForce, Color.blue, 0.02f);
 		}
-
-		//Debug.DrawLine(transform.position, transform.position + drivingForce, Color.red, 0.02f);
 
 		//Clamp the force to within a reasonable range
 		drivingForce = Vector3.ClampMagnitude (drivingForce, 40.0f);
